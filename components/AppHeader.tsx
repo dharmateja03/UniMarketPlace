@@ -39,7 +39,11 @@ export default function AppHeader() {
         <Link href="/marketplace">Marketplace</Link>
         <Link href="/messages">
           Messages
-          {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+          {unreadCount > 0 && (
+            <span className="badge" aria-live="polite" aria-atomic="true">
+              {unreadCount}
+            </span>
+          )}
         </Link>
         <Link href="/profile">Profile</Link>
         <Link className="nav-accent" href="/marketplace/new">

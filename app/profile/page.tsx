@@ -21,7 +21,7 @@ export default async function ProfilePage() {
         <p style={{ color: "var(--muted)" }}>Listings: {user.listings.length}</p>
       </div>
 
-      <h2 className="section-title">Your listings</h2>
+      <h2 className="section-title">Your Listings</h2>
       <div className="card-grid">
         {user.listings.map((listing) => (
           <div className="card" key={listing.id}>

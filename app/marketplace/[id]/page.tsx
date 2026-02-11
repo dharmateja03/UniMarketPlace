@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { startConversation } from "@/app/actions";
+import SubmitButton from "@/components/SubmitButton";
 
 function formatPrice(cents: number) {
   return new Intl.NumberFormat("en-US", {
@@ -32,7 +33,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
       transactionType: listing.transactionType,
       priceCents: { gte: priceMin, lte: priceMax }
     },
-    include: { user: true },
+    include: { user: true, images: true },
     take: 4
   });
 
@@ -43,7 +44,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           where: {
             id: { notIn: [listing.id, ...recommendationIds] }
           },
-          include: { user: true },
+          include: { user: true, images: true },
           orderBy: { createdAt: "desc" },
           take: 4 - primaryRecommendations.length
         })
@@ -51,14 +52,33 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
 
   const recommendations = [...primaryRecommendations, ...fallbackRecommendations];
 
+  const imageUrl = listing.images[0]?.url;
+
   return (
     <div>
       <div className="listing-detail">
         <div className="panel">
-          <p className="tag">{listing.transactionType}</p>
+          {imageUrl ? (
+            <img
+              className="detail-image"
+              src={imageUrl}
+              alt={listing.title}
+              width={900}
+              height={280}
+              loading="eager"
+              fetchPriority="high"
+            />
+          ) : (
+            <div className="detail-image placeholder" aria-hidden="true" />
+          )}
+          <p className="tag" style={{ marginTop: 16 }}>
+            {listing.transactionType}
+          </p>
           <h1>{listing.title}</h1>
-          <p style={{ color: "var(--muted)" }}>{listing.campus}</p>
-          <p style={{ fontSize: "1.2rem", marginTop: 12 }}>{formatPrice(listing.priceCents)}</p>
+          <p className="meta">{listing.campus}</p>
+          <p className="price" style={{ marginTop: 10 }}>
+            {formatPrice(listing.priceCents)}
+          </p>
           <p style={{ marginTop: 16 }}>{listing.description}</p>
           <p style={{ marginTop: 16 }}>Condition: {listing.condition}</p>
           {listing.rentalPeriodDays && (
@@ -68,13 +88,18 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
         <div className="panel">
           <h3>Seller</h3>
           <p>{listing.user.name}</p>
-          <p style={{ color: "var(--muted)" }}>{listing.user.universityEmail}</p>
+          <p className="meta">{listing.user.universityEmail}</p>
           {listing.userId !== currentUserId && (
             <form action={startConversation} style={{ marginTop: 20 }}>
               <input type="hidden" name="listingId" value={listing.id} />
               <input type="hidden" name="sellerId" value={listing.userId} />
-              <textarea name="message" placeholder="Say hi to the seller" />
-              <button className="button primary" type="submit">Start Chat</button>
+              <textarea
+                name="message"
+                placeholder="Say hi to the seller… (e.g., Can we meet today?)"
+                aria-label="Message to seller"
+                autoComplete="off"
+              />
+              <SubmitButton label="Start Chat" pendingLabel="Starting…" />
             </form>
           )}
           {listing.userId === currentUserId && (
@@ -85,15 +110,29 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
         </div>
       </div>
 
-      <h2 className="section-title">Recommended for you</h2>
+      <h2 className="section-title">Recommended for You</h2>
       <div className="card-grid">
         {recommendations.map((item) => (
-          <Link key={item.id} className="card" href={`/marketplace/${item.id}`}>
-            <p className="tag">{item.transactionType}</p>
-            <h3>{item.title}</h3>
-            <p>{formatPrice(item.priceCents)}</p>
-            <p style={{ color: "var(--muted)" }}>{item.campus}</p>
-            <p style={{ fontSize: "0.9rem" }}>Seller: {item.user.name}</p>
+          <Link key={item.id} className="card card-hover" href={`/marketplace/${item.id}`}>
+            {item.images?.[0]?.url ? (
+              <img
+                className="card-image"
+                src={item.images[0].url}
+                alt={item.title}
+                width={400}
+                height={180}
+                loading="lazy"
+              />
+            ) : (
+              <div className="card-image placeholder" aria-hidden="true" />
+            )}
+            <div className="card-body">
+              <p className="tag">{item.transactionType}</p>
+              <h3>{item.title}</h3>
+              <p className="price">{formatPrice(item.priceCents)}</p>
+              <p className="meta">{item.campus}</p>
+              <p className="meta">Seller: {item.user.name}</p>
+            </div>
           </Link>
         ))}
         {!recommendations.length && (

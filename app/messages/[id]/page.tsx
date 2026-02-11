@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { sendMessage } from "@/app/actions";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function ConversationPage({ params }: { params: { id: string } }) {
   const userId = getCurrentUserId();
@@ -46,8 +47,14 @@ export default async function ConversationPage({ params }: { params: { id: strin
           ))}
         </div>
         <form action={action}>
-          <input name="body" placeholder="Type a message" required />
-          <button className="button primary" type="submit">Send</button>
+          <input
+            name="body"
+            placeholder="Type a message… (e.g., I can meet after class)"
+            aria-label="Message"
+            autoComplete="off"
+            required
+          />
+          <SubmitButton label="Send Message" pendingLabel="Sending…" />
         </form>
       </div>
     </div>

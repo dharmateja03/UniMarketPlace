@@ -70,6 +70,33 @@ export default async function MarketplacePage({
   const buySell = listings.filter((listing) => listing.transactionType === "SELL");
   const rentals = listings.filter((listing) => listing.transactionType === "RENT");
 
+  const cardFor = (listing: (typeof listings)[number]) => {
+    const imageUrl = listing.images[0]?.url;
+    return (
+      <Link key={listing.id} className="card card-hover" href={`/marketplace/${listing.id}`}>
+        {imageUrl ? (
+          <img
+            className="card-image"
+            src={imageUrl}
+            alt={listing.title}
+            loading="lazy"
+            width={400}
+            height={180}
+          />
+        ) : (
+          <div className="card-image placeholder" aria-hidden="true" />
+        )}
+        <div className="card-body">
+          <p className="tag">{listing.transactionType}</p>
+          <h3>{listing.title}</h3>
+          <p className="price">{formatPrice(listing.priceCents)}</p>
+          <p className="meta">{listing.campus}</p>
+          <p className="meta">Seller: {listing.user.name}</p>
+        </div>
+      </Link>
+    );
+  };
+
   return (
     <div>
       <h1>Marketplace</h1>
@@ -93,8 +120,14 @@ export default async function MarketplacePage({
         <aside className="filter-panel">
           <h3>Filters</h3>
           <form method="get" className="filter-form">
-            <input name="q" placeholder="Search" defaultValue={query ?? ""} />
-            <select name="category" defaultValue={category ?? "all"}>
+            <input
+              name="q"
+              placeholder="Search… (e.g., bike)"
+              aria-label="Search listings"
+              autoComplete="off"
+              defaultValue={query ?? ""}
+            />
+            <select name="category" aria-label="Category" defaultValue={category ?? "all"}>
               <option value="all">All categories</option>
               {categoryOptions.map((value) => (
                 <option key={value} value={value}>
@@ -102,7 +135,7 @@ export default async function MarketplacePage({
                 </option>
               ))}
             </select>
-            <select name="campus" defaultValue={campus ?? "all"}>
+            <select name="campus" aria-label="Campus" defaultValue={campus ?? "all"}>
               <option value="all">All campuses</option>
               {campusOptions.map((value) => (
                 <option key={value} value={value}>
@@ -110,18 +143,36 @@ export default async function MarketplacePage({
                 </option>
               ))}
             </select>
-            <select name="type" defaultValue={type}>
+            <select name="type" aria-label="Listing type" defaultValue={type}>
               <option value="all">Sell or rent</option>
               <option value="SELL">Buy & Sell</option>
               <option value="RENT">Rentals</option>
             </select>
-            <input name="min" type="number" step="0.01" placeholder="Min price" defaultValue={searchParams.min ?? ""} />
-            <input name="max" type="number" step="0.01" placeholder="Max price" defaultValue={searchParams.max ?? ""} />
+            <input
+              name="min"
+              type="number"
+              step="0.01"
+              placeholder="Min price… (e.g., 25)"
+              aria-label="Minimum price"
+              autoComplete="off"
+              inputMode="decimal"
+              defaultValue={searchParams.min ?? ""}
+            />
+            <input
+              name="max"
+              type="number"
+              step="0.01"
+              placeholder="Max price… (e.g., 250)"
+              aria-label="Maximum price"
+              autoComplete="off"
+              inputMode="decimal"
+              defaultValue={searchParams.max ?? ""}
+            />
             <button className="button" type="submit">
-              Apply
+              Apply Filters
             </button>
             <Link className="button" href="/marketplace">
-              Clear
+              Clear Filters
             </Link>
           </form>
 
@@ -138,15 +189,7 @@ export default async function MarketplacePage({
               <div>
                 <h2 className="section-title">Buy & Sell</h2>
                 <div className="card-grid">
-                  {buySell.map((listing) => (
-                    <Link key={listing.id} className="card" href={`/marketplace/${listing.id}`}>
-                      <p className="tag">{listing.transactionType}</p>
-                      <h3>{listing.title}</h3>
-                      <p>{formatPrice(listing.priceCents)}</p>
-                      <p style={{ color: "var(--muted)" }}>{listing.campus}</p>
-                      <p style={{ fontSize: "0.9rem" }}>Seller: {listing.user.name}</p>
-                    </Link>
-                  ))}
+                  {buySell.map(cardFor)}
                   {!buySell.length && (
                     <div className="card">
                       <p>No Buy & Sell listings yet.</p>
@@ -158,15 +201,7 @@ export default async function MarketplacePage({
               <div>
                 <h2 className="section-title">Rentals</h2>
                 <div className="card-grid">
-                  {rentals.map((listing) => (
-                    <Link key={listing.id} className="card" href={`/marketplace/${listing.id}`}>
-                      <p className="tag">{listing.transactionType}</p>
-                      <h3>{listing.title}</h3>
-                      <p>{formatPrice(listing.priceCents)}</p>
-                      <p style={{ color: "var(--muted)" }}>{listing.campus}</p>
-                      <p style={{ fontSize: "0.9rem" }}>Seller: {listing.user.name}</p>
-                    </Link>
-                  ))}
+                  {rentals.map(cardFor)}
                   {!rentals.length && (
                     <div className="card">
                       <p>No rental listings yet.</p>
@@ -181,15 +216,7 @@ export default async function MarketplacePage({
             <div>
               <h2 className="section-title">{type === "SELL" ? "Buy & Sell" : "Rentals"}</h2>
               <div className="card-grid">
-                {listings.map((listing) => (
-                  <Link key={listing.id} className="card" href={`/marketplace/${listing.id}`}>
-                    <p className="tag">{listing.transactionType}</p>
-                    <h3>{listing.title}</h3>
-                    <p>{formatPrice(listing.priceCents)}</p>
-                    <p style={{ color: "var(--muted)" }}>{listing.campus}</p>
-                    <p style={{ fontSize: "0.9rem" }}>Seller: {listing.user.name}</p>
-                  </Link>
-                ))}
+                {listings.map(cardFor)}
                 {!listings.length && (
                   <div className="card">
                     <p>No listings match your filters.</p>

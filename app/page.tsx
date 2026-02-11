@@ -21,7 +21,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="panel">
-          <h3>What students can do</h3>
+          <h3>What Students Can Do</h3>
           <div className="card-grid">
             <div className="card">
               <p className="tag">Sell</p>
@@ -40,7 +40,7 @@ export default function HomePage() {
       </section>
 
       <section>
-        <h2 className="section-title">How it works</h2>
+        <h2 className="section-title">How It Works</h2>
         <div className="card-grid">
           <div className="card">
             <p className="tag">1. Verify</p>
