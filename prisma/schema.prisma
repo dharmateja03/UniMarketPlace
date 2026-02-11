@@ -18,16 +18,33 @@ enum TransactionType {
   RENT
 }
 
+enum DeliveryOption {
+  MEETUP
+  DELIVERY
+  PICKUP
+}
+
+enum ReportStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+}
+
 model User {
   id              String   @id @default(cuid())
   name            String
   email           String   @unique
   universityEmail String   @unique
   imageUrl        String?
+  campus          String?
   createdAt       DateTime @default(now())
   listings        Listing[]
   messages        Message[]
   participants    ConversationParticipant[]
+  savedListings   SavedListing[]
+  reviewsReceived Review[] @relation("reviewsReceived")
+  reviewsWritten  Review[] @relation("reviewsWritten")
+  reports         Report[]
 }
 
 model Listing {
@@ -41,6 +58,7 @@ model Listing {
   status          ListingStatus   @default(AVAILABLE)
   transactionType TransactionType @default(SELL)
   rentalPeriodDays Int?
+  deliveryOptions String[]
   campus          String
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -48,6 +66,9 @@ model Listing {
   user            User            @relation(fields: [userId], references: [id])
   images          ListingImage[]
   conversations   Conversation[]
+  savedBy         SavedListing[]
+  reviews         Review[]
+  reports         Report[]
 }
 
 model ListingImage {
@@ -85,4 +106,40 @@ model Message {
   createdAt      DateTime     @default(now())
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender         User         @relation(fields: [senderId], references: [id])
+}
+
+model SavedListing {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  sellerId   String
+  reviewerId String
+  listingId  String?
+  seller     User     @relation("reviewsReceived", fields: [sellerId], references: [id])
+  reviewer   User     @relation("reviewsWritten", fields: [reviewerId], references: [id])
+  listing    Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+}
+
+model Report {
+  id         String       @id @default(cuid())
+  reason     String
+  details    String?
+  status     ReportStatus @default(OPEN)
+  createdAt  DateTime     @default(now())
+  listingId  String
+  reporterId String
+  listing    Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  reporter   User         @relation(fields: [reporterId], references: [id])
 }

@@ -5,41 +5,73 @@ export default function HomePage() {
     <div>
       <section className="hero">
         <div>
-          <p className="tag">Student-only marketplace</p>
-          <h1>Buy, sell, rent — all inside your university network.</h1>
+          <p className="pill">Student-only marketplace</p>
+          <h1>Buy, sell, and rent with people you actually see on campus.</h1>
           <p>
-            UniHub keeps it campus-only. Verify with your university email, list
-            anything from textbooks to sublets, and chat with classmates in real time.
+            UniHub keeps it student‑only. Post listings with photos, filter by campus,
+            and chat safely — all in one place.
           </p>
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+          <div className="hero-actions">
             <Link className="button primary" href="/marketplace">
-              Explore Listings
+              Explore Marketplace
             </Link>
             <Link className="button" href="/marketplace/new">
               Post a Listing
             </Link>
           </div>
+          <div className="hero-highlights">
+            <div>
+              <p className="tag">Trust</p>
+              <p className="meta">Verified university email</p>
+            </div>
+            <div>
+              <p className="tag">Fast</p>
+              <p className="meta">Post in under 2 minutes</p>
+            </div>
+            <div>
+              <p className="tag">Local</p>
+              <p className="meta">Meetups on campus</p>
+            </div>
+          </div>
         </div>
-        <div className="panel">
-          <h3>What Students Can Do</h3>
-          <div className="card-grid">
-            <div className="card">
-              <p className="tag">Sell</p>
-              <p>Textbooks, gadgets, furniture — list in minutes.</p>
+        <div className="hero-card">
+          <div className="hero-grid">
+            <div className="hero-tile accent">Textbooks</div>
+            <div className="hero-tile">Housing</div>
+            <div className="hero-tile">Furniture</div>
+            <div className="hero-tile accent-2">Electronics</div>
+          </div>
+          <div className="hero-card-footer">
+            <div>
+              <p className="tag">Today’s picks</p>
+              <p className="meta">See what students are trading right now.</p>
             </div>
-            <div className="card">
-              <p className="tag">Rent</p>
-              <p>Sublets, gear, event rentals with clear terms.</p>
-            </div>
-            <div className="card">
-              <p className="tag">Chat</p>
-              <p>Message securely without sharing phone numbers.</p>
-            </div>
+            <Link className="button" href="/marketplace">
+              View listings
+            </Link>
           </div>
         </div>
       </section>
 
-      <section>
+      <section className="home-section">
+        <h2 className="section-title">What Students Can Do</h2>
+        <div className="card-grid">
+          <div className="card">
+            <p className="tag">Sell</p>
+            <p>Textbooks, gadgets, furniture — list in minutes.</p>
+          </div>
+          <div className="card">
+            <p className="tag">Rent</p>
+            <p>Sublets, gear, event rentals with clear terms.</p>
+          </div>
+          <div className="card">
+            <p className="tag">Chat</p>
+            <p>Message securely without sharing phone numbers.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section">
         <h2 className="section-title">How It Works</h2>
         <div className="card-grid">
           <div className="card">

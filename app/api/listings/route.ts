@@ -61,10 +61,17 @@ export async function POST(request: Request) {
       campus: parsed.data.campus,
       transactionType: parsed.data.transactionType,
       rentalPeriodDays: parsed.data.rentalPeriodDays ?? null,
+      deliveryOptions: parsed.data.deliveryOptions ?? ["MEETUP"],
       userId,
-      images: parsed.data.imageUrl
-        ? { create: [{ url: parsed.data.imageUrl }] }
-        : undefined
+      images:
+        parsed.data.imageUrls?.length || parsed.data.imageUrl
+          ? {
+              create: [
+                ...(parsed.data.imageUrls ?? []).map((url) => ({ url })),
+                ...(parsed.data.imageUrl ? [{ url: parsed.data.imageUrl }] : [])
+              ]
+            }
+          : undefined
     }
   });
 

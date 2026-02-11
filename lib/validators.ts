@@ -9,9 +9,24 @@ export const listingSchema = z.object({
   campus: z.string().min(2),
   transactionType: z.enum(["SELL", "RENT"]),
   rentalPeriodDays: z.number().int().positive().optional().nullable(),
-  imageUrl: z.string().url().optional().nullable()
+  deliveryOptions: z.array(z.enum(["MEETUP", "DELIVERY", "PICKUP"])).optional(),
+  imageUrl: z.string().url().optional().nullable(),
+  imageUrls: z.array(z.string().url()).optional()
 });
 
 export const messageSchema = z.object({
   body: z.string().min(1)
+});
+
+export const reviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().min(3).optional().nullable(),
+  listingId: z.string().optional().nullable(),
+  sellerId: z.string()
+});
+
+export const reportSchema = z.object({
+  reason: z.string().min(3),
+  details: z.string().min(3).optional().nullable(),
+  listingId: z.string()
 });

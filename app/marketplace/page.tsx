@@ -1,11 +1,25 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { getCurrentUserId } from "@/lib/auth";
 
 function formatPrice(cents: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD"
   }).format(cents / 100);
+}
+
+function formatStatus(status: string) {
+  switch (status) {
+    case "AVAILABLE":
+      return "Available";
+    case "RESERVED":
+      return "Reserved";
+    case "SOLD":
+      return "Sold";
+    default:
+      return status;
+  }
 }
 
 type MarketplaceSearchParams = {
@@ -29,12 +43,14 @@ export default async function MarketplacePage({
   const min = Number(searchParams.min);
   const max = Number(searchParams.max);
 
-  const [categories, campuses, listings] = await Promise.all([
+  const userId = getCurrentUserId();
+  const [user, categories, campuses, listings] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId } }),
     prisma.listing.findMany({ select: { category: true }, distinct: ["category"] }),
     prisma.listing.findMany({ select: { campus: true }, distinct: ["campus"] }),
     prisma.listing.findMany({
       orderBy: { createdAt: "desc" },
-      include: { images: true, user: true },
+      include: { images: true, user: true, savedBy: true },
       where: {
         AND: [
           query
@@ -57,6 +73,7 @@ export default async function MarketplacePage({
 
   const categoryOptions = categories.map((item) => item.category).sort();
   const campusOptions = campuses.map((item) => item.campus).sort();
+  const primaryCampus = campus ?? user?.campus ?? campusOptions[0] ?? "Main Campus";
 
   const activeFilters = [
     query ? `Search: ${query}` : null,
@@ -69,9 +86,24 @@ export default async function MarketplacePage({
 
   const buySell = listings.filter((listing) => listing.transactionType === "SELL");
   const rentals = listings.filter((listing) => listing.transactionType === "RENT");
+  const todayPicks = listings.slice(0, 6);
+  const nearYou = listings.filter((listing) => listing.campus === primaryCampus).slice(0, 6);
+
+  const categoryIcons: Record<string, string> = {
+    Electronics: "💻",
+    Housing: "🏡",
+    Furniture: "🪑",
+    Books: "📚",
+    Clothing: "🧥",
+    Services: "🛠️",
+    Tickets: "🎟️",
+    Bikes: "🚲",
+    Appliances: "🍳"
+  };
 
   const cardFor = (listing: (typeof listings)[number]) => {
     const imageUrl = listing.images[0]?.url;
+    const isSaved = listing.savedBy.some((save) => save.userId === userId);
     return (
       <Link key={listing.id} className="card card-hover" href={`/marketplace/${listing.id}`}>
         {imageUrl ? (
@@ -87,10 +119,14 @@ export default async function MarketplacePage({
           <div className="card-image placeholder" aria-hidden="true" />
         )}
         <div className="card-body">
-          <p className="tag">{listing.transactionType}</p>
+          <div className="card-meta-row">
+            <p className="tag">{listing.transactionType}</p>
+            {isSaved && <span className="saved-pill">Saved</span>}
+          </div>
           <h3>{listing.title}</h3>
           <p className="price">{formatPrice(listing.priceCents)}</p>
           <p className="meta">{listing.campus}</p>
+          <p className="meta">Status: {formatStatus(listing.status)}</p>
           <p className="meta">Seller: {listing.user.name}</p>
         </div>
       </Link>
@@ -118,7 +154,24 @@ export default async function MarketplacePage({
 
       <div className="market-layout">
         <aside className="filter-panel">
-          <h3>Filters</h3>
+          <h3>Categories</h3>
+          <div className="category-list">
+            {categoryOptions.map((value) => (
+              <Link
+                key={value}
+                className={`category-item ${category === value ? "active" : ""}`}
+                href={`/marketplace?category=${encodeURIComponent(value)}`}
+              >
+                <span>{categoryIcons[value] ?? "🛒"}</span>
+                <span>{value}</span>
+              </Link>
+            ))}
+            {!categoryOptions.length && <p className="meta">No categories yet.</p>}
+          </div>
+          <Link className="button" href="/saved">
+            Saved items
+          </Link>
+          <h3 style={{ marginTop: 20 }}>Filters</h3>
           <form method="get" className="filter-form">
             <label className="sr-only" htmlFor="filter-search">
               Search listings
@@ -204,6 +257,30 @@ export default async function MarketplacePage({
         <section>
           {type === "all" && (
             <div className="section-stack">
+              <div>
+                <h2 className="section-title">Today's Picks</h2>
+                <div className="card-grid">
+                  {todayPicks.map(cardFor)}
+                  {!todayPicks.length && (
+                    <div className="card">
+                      <p>No picks yet.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h2 className="section-title">Near You · {primaryCampus}</h2>
+                <div className="card-grid">
+                  {nearYou.map(cardFor)}
+                  {!nearYou.length && (
+                    <div className="card">
+                      <p>No nearby listings yet.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div>
                 <h2 className="section-title">Buy & Sell</h2>
                 <div className="card-grid">

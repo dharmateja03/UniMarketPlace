@@ -11,6 +11,7 @@ async function main() {
       name: "Alex Rivera",
       email: "alex@student.edu",
       universityEmail: "alex@campus.edu",
+      campus: "Main Campus",
       imageUrl: "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=400"
     }
   });
@@ -23,6 +24,7 @@ async function main() {
       name: "Jordan Lee",
       email: "jordan@student.edu",
       universityEmail: "jordan@campus.edu",
+      campus: "North Campus",
       imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400"
     }
   });
@@ -39,11 +41,15 @@ async function main() {
       condition: "Like New",
       campus: "Main Campus",
       transactionType: "SELL",
+      deliveryOptions: ["MEETUP", "PICKUP"],
       userId: demoUser.id,
       images: {
         create: [
           {
             url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200"
+          },
+          {
+            url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=1200"
           }
         ]
       }
@@ -90,11 +96,200 @@ async function main() {
       campus: "North Campus",
       transactionType: "RENT",
       rentalPeriodDays: 90,
+      deliveryOptions: ["MEETUP"],
       userId: secondUser.id,
       images: {
         create: [
           {
             url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200"
+          },
+          {
+            url: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200"
+          }
+        ]
+      }
+    }
+  });
+
+  await prisma.listing.upsert({
+    where: { id: "demo-listing-3" },
+    update: {},
+    create: {
+      id: "demo-listing-3",
+      title: "Road bike - great for commuting",
+      description: "Aluminum frame, tuned brakes, includes helmet and lock.",
+      priceCents: 28000,
+      category: "Bikes",
+      condition: "Good",
+      campus: "Main Campus",
+      transactionType: "SELL",
+      deliveryOptions: ["MEETUP"],
+      userId: demoUser.id,
+      images: {
+        create: [
+          {
+            url: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=1200"
+          },
+          {
+            url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200"
+          }
+        ]
+      }
+    }
+  });
+
+  await prisma.listing.upsert({
+    where: { id: "demo-listing-4" },
+    update: {},
+    create: {
+      id: "demo-listing-4",
+      title: "Standing desk - adjustable height",
+      description: "Electric sit/stand desk, 55-inch tabletop, cable tray.",
+      priceCents: 19000,
+      category: "Furniture",
+      condition: "Like New",
+      campus: "South Campus",
+      transactionType: "SELL",
+      deliveryOptions: ["PICKUP"],
+      userId: secondUser.id,
+      images: {
+        create: [
+          {
+            url: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200"
+          },
+          {
+            url: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200"
+          }
+        ]
+      }
+    }
+  });
+
+  await prisma.listing.upsert({
+    where: { id: "demo-listing-5" },
+    update: {},
+    create: {
+      id: "demo-listing-5",
+      title: "Calculus & Physics textbook bundle",
+      description: "Both in good condition, light highlighting.",
+      priceCents: 6500,
+      category: "Books",
+      condition: "Good",
+      campus: "North Campus",
+      transactionType: "SELL",
+      deliveryOptions: ["MEETUP", "PICKUP"],
+      userId: demoUser.id,
+      images: {
+        create: [
+          {
+            url: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200"
+          },
+          {
+            url: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1200"
+          }
+        ]
+      }
+    }
+  });
+
+  await prisma.listing.upsert({
+    where: { id: "demo-listing-6" },
+    update: {},
+    create: {
+      id: "demo-listing-6",
+      title: "DSLR camera kit for weekend rental",
+      description: "Canon DSLR with two lenses. Weekend rental, deposit required.",
+      priceCents: 4500,
+      category: "Electronics",
+      condition: "Good",
+      campus: "Main Campus",
+      transactionType: "RENT",
+      rentalPeriodDays: 2,
+      deliveryOptions: ["MEETUP"],
+      userId: secondUser.id,
+      images: {
+        create: [
+          {
+            url: "https://images.unsplash.com/photo-1519183071298-a2962e4023c9?q=80&w=1200"
+          },
+          {
+            url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1200"
+          }
+        ]
+      }
+    }
+  });
+
+  await prisma.listing.upsert({
+    where: { id: "demo-listing-7" },
+    update: {},
+    create: {
+      id: "demo-listing-7",
+      title: "Campus graduation gown rental",
+      description: "Gown + cap for May ceremony. Fits 5'7\"–5'11\".",
+      priceCents: 3000,
+      category: "Clothing",
+      condition: "Good",
+      campus: "Main Campus",
+      transactionType: "RENT",
+      rentalPeriodDays: 3,
+      deliveryOptions: ["MEETUP"],
+      userId: demoUser.id,
+      images: {
+        create: [
+          {
+            url: "https://images.unsplash.com/photo-1455849318743-b2233052fcff?q=80&w=1200"
+          }
+        ]
+      }
+    }
+  });
+
+  await prisma.listing.upsert({
+    where: { id: "demo-listing-8" },
+    update: {},
+    create: {
+      id: "demo-listing-8",
+      title: "Microwave + mini fridge set",
+      description: "Perfect for dorm room. Both cleaned and working.",
+      priceCents: 9000,
+      category: "Appliances",
+      condition: "Good",
+      campus: "South Campus",
+      transactionType: "SELL",
+      deliveryOptions: ["PICKUP", "DELIVERY"],
+      userId: secondUser.id,
+      images: {
+        create: [
+          {
+            url: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=1200"
+          },
+          {
+            url: "https://images.unsplash.com/photo-1472224371017-08207f84aaae?q=80&w=1200"
+          }
+        ]
+      }
+    }
+  });
+
+  await prisma.listing.upsert({
+    where: { id: "demo-listing-9" },
+    update: {},
+    create: {
+      id: "demo-listing-9",
+      title: "Club concert tickets (2)",
+      description: "Friday night show. Digital transfer immediately.",
+      priceCents: 7000,
+      category: "Tickets",
+      condition: "New",
+      campus: "North Campus",
+      transactionType: "SELL",
+      deliveryOptions: ["DELIVERY"],
+      userId: demoUser.id,
+      images: {
+        create: [
+          {
+            url: "https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?q=80&w=1200"
           }
         ]
       }
@@ -104,6 +299,40 @@ async function main() {
   await prisma.conversation.update({
     where: { id: convo.id },
     data: { messages: { create: { senderId: secondUser.id, body: "Awesome, I will DM you details." } } }
+  });
+
+  await prisma.review.createMany({
+    data: [
+      {
+        rating: 5,
+        comment: "Smooth pickup, great condition!",
+        sellerId: demoUser.id,
+        reviewerId: secondUser.id,
+        listingId: listing.id
+      },
+      {
+        rating: 4,
+        comment: "Responsive seller and fair price.",
+        sellerId: demoUser.id,
+        reviewerId: secondUser.id
+      }
+    ]
+  });
+
+  await prisma.savedListing.create({
+    data: {
+      userId: secondUser.id,
+      listingId: listing.id
+    }
+  });
+
+  await prisma.report.create({
+    data: {
+      listingId: listing.id,
+      reporterId: secondUser.id,
+      reason: "Suspected scam",
+      details: "Price seems too low, please review."
+    }
   });
 }
 

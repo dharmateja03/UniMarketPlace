@@ -35,6 +35,7 @@ npm run dev
 - Marketplace includes filters + simple recommendations.
 - Message notifications are polled every 5 seconds (no WebSockets).
 - Listing images can be uploaded to Cloudflare R2 via a signed URL.
+- Added Marketplace features: categories sidebar, saved listings, today’s picks, near-you section, seller reviews, reports, and a moderation queue.
 
 ## Key files
 - `prisma/schema.prisma`

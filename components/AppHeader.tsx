@@ -37,6 +37,7 @@ export default function AppHeader() {
       </Link>
       <nav>
         <Link href="/marketplace">Marketplace</Link>
+        <Link href="/saved">Saved</Link>
         <Link href="/messages">
           Messages
           {unreadCount > 0 && (

@@ -4,13 +4,18 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { listingSchema, messageSchema } from "@/lib/validators";
+import { listingSchema, messageSchema, reportSchema, reviewSchema } from "@/lib/validators";
 
 type ActionState = {
   error: string | null;
 };
 
 export async function createListingAction(_: ActionState, formData: FormData): Promise<ActionState> {
+  const imageUrls = formData.getAll("imageUrls").map((value) => String(value)).filter(Boolean);
+  const deliveryOptions = formData
+    .getAll("deliveryOptions")
+    .map((value) => String(value))
+    .filter(Boolean);
   const payload = {
     title: String(formData.get("title") || ""),
     description: String(formData.get("description") || ""),
@@ -22,9 +27,11 @@ export async function createListingAction(_: ActionState, formData: FormData): P
     rentalPeriodDays: formData.get("rentalPeriodDays")
       ? Number(formData.get("rentalPeriodDays"))
       : null,
+    deliveryOptions,
     imageUrl: formData.get("imageUrl")
       ? String(formData.get("imageUrl"))
-      : null
+      : null,
+    imageUrls
   };
 
   const parsed = listingSchema.safeParse(payload);
@@ -44,10 +51,17 @@ export async function createListingAction(_: ActionState, formData: FormData): P
       campus: parsed.data.campus,
       transactionType: parsed.data.transactionType,
       rentalPeriodDays: parsed.data.rentalPeriodDays ?? null,
+      deliveryOptions: parsed.data.deliveryOptions ?? ["MEETUP"],
       userId,
-      images: parsed.data.imageUrl
-        ? { create: [{ url: parsed.data.imageUrl }] }
-        : undefined
+      images:
+        parsed.data.imageUrls?.length || parsed.data.imageUrl
+          ? {
+              create: [
+                ...(parsed.data.imageUrls ?? []).map((url) => ({ url })),
+                ...(parsed.data.imageUrl ? [{ url: parsed.data.imageUrl }] : [])
+              ]
+            }
+          : undefined
     }
   });
 
@@ -103,4 +117,88 @@ export async function sendMessage(conversationId: string, formData: FormData) {
   });
 
   revalidatePath(`/messages/${conversationId}`);
+}
+
+export async function toggleSavedListing(listingId: string) {
+  const userId = getCurrentUserId();
+  const existing = await prisma.savedListing.findUnique({
+    where: { userId_listingId: { userId, listingId } }
+  });
+
+  if (existing) {
+    await prisma.savedListing.delete({
+      where: { userId_listingId: { userId, listingId } }
+    });
+  } else {
+    await prisma.savedListing.create({
+      data: { userId, listingId }
+    });
+  }
+
+  revalidatePath("/marketplace");
+  revalidatePath(`/marketplace/${listingId}`);
+  revalidatePath("/saved");
+}
+
+export async function createReview(formData: FormData) {
+  const payload = {
+    rating: Number(formData.get("rating") || 0),
+    comment: formData.get("comment") ? String(formData.get("comment")) : null,
+    listingId: formData.get("listingId") ? String(formData.get("listingId")) : null,
+    sellerId: String(formData.get("sellerId") || "")
+  };
+
+  const parsed = reviewSchema.safeParse(payload);
+  if (!parsed.success) {
+    throw new Error(parsed.error.message);
+  }
+
+  const userId = getCurrentUserId();
+  await prisma.review.create({
+    data: {
+      rating: parsed.data.rating,
+      comment: parsed.data.comment ?? null,
+      listingId: parsed.data.listingId ?? null,
+      sellerId: parsed.data.sellerId,
+      reviewerId: userId
+    }
+  });
+
+  revalidatePath(`/marketplace/${parsed.data.listingId ?? ""}`);
+  revalidatePath("/profile");
+}
+
+export async function createReport(formData: FormData) {
+  const payload = {
+    reason: String(formData.get("reason") || ""),
+    details: formData.get("details") ? String(formData.get("details")) : null,
+    listingId: String(formData.get("listingId") || "")
+  };
+
+  const parsed = reportSchema.safeParse(payload);
+  if (!parsed.success) {
+    throw new Error(parsed.error.message);
+  }
+
+  const userId = getCurrentUserId();
+  await prisma.report.create({
+    data: {
+      reason: parsed.data.reason,
+      details: parsed.data.details ?? null,
+      listingId: parsed.data.listingId,
+      reporterId: userId
+    }
+  });
+
+  revalidatePath(`/marketplace/${parsed.data.listingId}`);
+  revalidatePath("/admin/moderation");
+}
+
+export async function updateReportStatus(reportId: string, status: string) {
+  await prisma.report.update({
+    where: { id: reportId },
+    data: { status: status as "OPEN" | "UNDER_REVIEW" | "RESOLVED" }
+  });
+
+  revalidatePath("/admin/moderation");
 }
