@@ -120,14 +120,20 @@ export default async function MarketplacePage({
         <aside className="filter-panel">
           <h3>Filters</h3>
           <form method="get" className="filter-form">
+            <label className="sr-only" htmlFor="filter-search">
+              Search listings
+            </label>
             <input
+              id="filter-search"
               name="q"
               placeholder="Search… (e.g., bike)"
-              aria-label="Search listings"
               autoComplete="off"
               defaultValue={query ?? ""}
             />
-            <select name="category" aria-label="Category" defaultValue={category ?? "all"}>
+            <label className="sr-only" htmlFor="filter-category">
+              Category
+            </label>
+            <select id="filter-category" name="category" defaultValue={category ?? "all"}>
               <option value="all">All categories</option>
               {categoryOptions.map((value) => (
                 <option key={value} value={value}>
@@ -135,7 +141,10 @@ export default async function MarketplacePage({
                 </option>
               ))}
             </select>
-            <select name="campus" aria-label="Campus" defaultValue={campus ?? "all"}>
+            <label className="sr-only" htmlFor="filter-campus">
+              Campus
+            </label>
+            <select id="filter-campus" name="campus" defaultValue={campus ?? "all"}>
               <option value="all">All campuses</option>
               {campusOptions.map((value) => (
                 <option key={value} value={value}>
@@ -143,27 +152,36 @@ export default async function MarketplacePage({
                 </option>
               ))}
             </select>
-            <select name="type" aria-label="Listing type" defaultValue={type}>
+            <label className="sr-only" htmlFor="filter-type">
+              Listing type
+            </label>
+            <select id="filter-type" name="type" defaultValue={type}>
               <option value="all">Sell or rent</option>
               <option value="SELL">Buy & Sell</option>
               <option value="RENT">Rentals</option>
             </select>
+            <label className="sr-only" htmlFor="filter-min">
+              Minimum price
+            </label>
             <input
+              id="filter-min"
               name="min"
               type="number"
               step="0.01"
               placeholder="Min price… (e.g., 25)"
-              aria-label="Minimum price"
               autoComplete="off"
               inputMode="decimal"
               defaultValue={searchParams.min ?? ""}
             />
+            <label className="sr-only" htmlFor="filter-max">
+              Maximum price
+            </label>
             <input
+              id="filter-max"
               name="max"
               type="number"
               step="0.01"
               placeholder="Max price… (e.g., 250)"
-              aria-label="Maximum price"
               autoComplete="off"
               inputMode="decimal"
               defaultValue={searchParams.max ?? ""}

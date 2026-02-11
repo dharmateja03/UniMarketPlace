@@ -47,10 +47,13 @@ export default async function ConversationPage({ params }: { params: { id: strin
           ))}
         </div>
         <form action={action}>
+          <label className="sr-only" htmlFor="chat-message">
+            Message
+          </label>
           <input
+            id="chat-message"
             name="body"
             placeholder="Type a message… (e.g., I can meet after class)"
-            aria-label="Message"
             autoComplete="off"
             required
           />

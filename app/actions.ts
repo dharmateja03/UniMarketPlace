@@ -6,7 +6,11 @@ import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { listingSchema, messageSchema } from "@/lib/validators";
 
-export async function createListing(formData: FormData) {
+type ActionState = {
+  error: string | null;
+};
+
+export async function createListingAction(_: ActionState, formData: FormData): Promise<ActionState> {
   const payload = {
     title: String(formData.get("title") || ""),
     description: String(formData.get("description") || ""),
@@ -25,7 +29,8 @@ export async function createListing(formData: FormData) {
 
   const parsed = listingSchema.safeParse(payload);
   if (!parsed.success) {
-    throw new Error(parsed.error.message);
+    const message = parsed.error.errors.map((error) => error.message).join(" ");
+    return { error: message };
   }
 
   const userId = getCurrentUserId();

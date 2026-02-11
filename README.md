@@ -14,6 +14,7 @@ npm install
 cp .env.example .env
 ```
 Fill `DATABASE_URL` with your Neon connection string.
+Set `R2_*` variables for Cloudflare R2 uploads.
 
 3. Generate Prisma client + migrate + seed
 ```
@@ -33,6 +34,7 @@ npm run dev
 - Chat uses conversations + messages tied to listings.
 - Marketplace includes filters + simple recommendations.
 - Message notifications are polled every 5 seconds (no WebSockets).
+- Listing images can be uploaded to Cloudflare R2 via a signed URL.
 
 ## Key files
 - `prisma/schema.prisma`

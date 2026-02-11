@@ -93,10 +93,13 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
             <form action={startConversation} style={{ marginTop: 20 }}>
               <input type="hidden" name="listingId" value={listing.id} />
               <input type="hidden" name="sellerId" value={listing.userId} />
+              <label className="sr-only" htmlFor="seller-message">
+                Message to seller
+              </label>
               <textarea
+                id="seller-message"
                 name="message"
                 placeholder="Say hi to the seller… (e.g., Can we meet today?)"
-                aria-label="Message to seller"
                 autoComplete="off"
               />
               <SubmitButton label="Start Chat" pendingLabel="Starting…" />
