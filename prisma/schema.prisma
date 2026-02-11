@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ListingStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
+enum TransactionType {
+  SELL
+  RENT
+}
+
+model User {
+  id              String   @id @default(cuid())
+  name            String
+  email           String   @unique
+  universityEmail String   @unique
+  imageUrl        String?
+  createdAt       DateTime @default(now())
+  listings        Listing[]
+  messages        Message[]
+  participants    ConversationParticipant[]
+}
+
+model Listing {
+  id              String          @id @default(cuid())
+  title           String
+  description     String
+  priceCents      Int
+  currency        String          @default("USD")
+  category        String
+  condition       String
+  status          ListingStatus   @default(AVAILABLE)
+  transactionType TransactionType @default(SELL)
+  rentalPeriodDays Int?
+  campus          String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  images          ListingImage[]
+  conversations   Conversation[]
+}
+
+model ListingImage {
+  id        String   @id @default(cuid())
+  url       String
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  listingId String?
+  listing   Listing? @relation(fields: [listingId], references: [id])
+  createdAt DateTime @default(now())
+  participants ConversationParticipant[]
+  messages  Message[]
+}
+
+model ConversationParticipant {
+  id             String        @id @default(cuid())
+  conversationId String
+  userId         String
+  lastReadAt     DateTime?
+  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id])
+}
