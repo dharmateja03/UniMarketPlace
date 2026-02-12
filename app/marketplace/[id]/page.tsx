@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { createReport, createReview, startConversation, toggleSavedListing } from "@/app/actions";
 import SubmitButton from "@/components/SubmitButton";
+import ShareButton from "@/components/ShareButton";
 
 function formatPrice(cents: number) {
   return new Intl.NumberFormat("en-US", {
@@ -126,6 +127,12 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           <p className="meta">
             Delivery: {listing.deliveryOptions.length ? listing.deliveryOptions.map(formatDelivery).join(", ") : "Meet on campus"}
           </p>
+          <div className="share-row">
+            <ShareButton
+              title={listing.title}
+              url={`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/marketplace/${listing.id}`}
+            />
+          </div>
           <p style={{ marginTop: 16 }}>{listing.description}</p>
           <p style={{ marginTop: 16 }}>Condition: {listing.condition}</p>
           {listing.rentalPeriodDays && (

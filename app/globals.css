@@ -547,6 +547,24 @@ textarea {
   background: linear-gradient(130deg, #f1e6d7, #fdf6ec);
 }
 
+.share-row {
+  margin-top: 16px;
+}
+
+.share-button {
+  gap: 8px;
+  font-size: 0.9rem;
+  background: #fff7ef;
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+.share-button:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
