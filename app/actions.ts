@@ -10,6 +10,13 @@ type ActionState = {
   error: string | null;
 };
 
+export async function incrementViewCount(listingId: string) {
+  await prisma.listing.update({
+    where: { id: listingId },
+    data: { viewCount: { increment: 1 } },
+  });
+}
+
 export async function createListingAction(_: ActionState, formData: FormData): Promise<ActionState> {
   const imageUrls = formData.getAll("imageUrls").map((value) => String(value)).filter(Boolean);
   const deliveryOptions = formData

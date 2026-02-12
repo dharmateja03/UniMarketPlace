@@ -993,6 +993,22 @@ textarea {
 
 [data-theme="dark"] .bundle-tag { background: #3a2a1a; color: #e0a070; }
 
+/* ── Trending Tag ── */
+
+.trending-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #fff0d4;
+  color: #8a5e00;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+[data-theme="dark"] .trending-tag { background: #3a3010; color: #e0c060; }
+
 /* ── Housing Details ── */
 
 .housing-details {

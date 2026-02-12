@@ -71,6 +71,7 @@ model Listing {
   rentalPeriodDays Int?
   deliveryOptions String[]
   campus          String
+  viewCount       Int             @default(0)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   userId          String

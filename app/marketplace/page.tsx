@@ -70,9 +70,11 @@ export default async function MarketplacePage({
             ? { priceCents: 0 }
             : type === "HOUSING"
               ? { category: "Housing" }
-              : type !== "all"
-                ? { transactionType: type as "SELL" | "RENT" }
-                : {},
+              : type === "TRENDING"
+                ? {}
+                : type !== "all"
+                  ? { transactionType: type as "SELL" | "RENT" }
+                  : {},
           Number.isFinite(min) ? { priceCents: { gte: Math.round(min * 100) } } : {},
           Number.isFinite(max) ? { priceCents: { lte: Math.round(max * 100) } } : {},
           type === "HOUSING" && searchParams.furnished === "yes" ? { furnished: true } : {},
@@ -82,6 +84,14 @@ export default async function MarketplacePage({
       }
     })
   ]);
+
+  // Trending: top listings by views + saves + conversations
+  const trending = await prisma.listing.findMany({
+    orderBy: { viewCount: "desc" },
+    include: { images: true, user: true, savedBy: true, bundle: true, _count: { select: { savedBy: true, conversations: true } } },
+    where: { status: "AVAILABLE" },
+    take: 8,
+  });
 
   const categoryOptions = categories.map((item) => item.category).sort();
   const campusOptions = campuses.map((item) => item.campus).sort();
@@ -167,6 +177,9 @@ export default async function MarketplacePage({
         <Link className={`tab ${type === "RENT" ? "active" : ""}`} href="/marketplace?type=RENT">
           Rentals
         </Link>
+        <Link className={`tab ${type === "TRENDING" ? "active" : ""}`} href="/marketplace?type=TRENDING">
+          Trending
+        </Link>
         <Link className={`tab ${type === "FREE" ? "active" : ""}`} href="/marketplace?type=FREE">
           Free Stuff
         </Link>
@@ -235,6 +248,7 @@ export default async function MarketplacePage({
               <option value="all">Sell or rent</option>
               <option value="SELL">Buy & Sell</option>
               <option value="RENT">Rentals</option>
+              <option value="TRENDING">Trending</option>
               <option value="FREE">Free Stuff</option>
               <option value="HOUSING">Housing</option>
             </select>
@@ -297,6 +311,36 @@ export default async function MarketplacePage({
         <section>
           {type === "all" && (
             <div className="section-stack">
+              {trending.length > 0 && (
+                <div>
+                  <h2 className="section-title">Trending</h2>
+                  <div className="card-grid">
+                    {trending.slice(0, 4).map((item) => {
+                      const imageUrl = item.images[0]?.url;
+                      return (
+                        <Link key={item.id} className="card card-hover" href={`/marketplace/${item.id}`}>
+                          {imageUrl ? (
+                            <img className="card-image" src={imageUrl} alt={item.title} loading="lazy" width={400} height={180} />
+                          ) : (
+                            <div className="card-image placeholder" aria-hidden="true" />
+                          )}
+                          <div className="card-body">
+                            <div className="card-meta-row">
+                              <p className="tag">{item.transactionType}</p>
+                              <span className="trending-tag">Trending</span>
+                            </div>
+                            <h3>{item.title}</h3>
+                            <p className="price">{formatPrice(item.priceCents)}</p>
+                            <p className="meta">{item.viewCount} views \u00B7 {item._count.savedBy} saves</p>
+                            <p className="meta">{item.campus}</p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <h2 className="section-title">Today&apos;s Picks</h2>
                 <div className="card-grid">
@@ -356,7 +400,42 @@ export default async function MarketplacePage({
             </div>
           )}
 
-          {type !== "all" && (
+          {type === "TRENDING" && (
+            <div>
+              <h2 className="section-title">Trending</h2>
+              <div className="card-grid">
+                {trending.map((item) => {
+                  const imageUrl = item.images[0]?.url;
+                  return (
+                    <Link key={item.id} className="card card-hover" href={`/marketplace/${item.id}`}>
+                      {imageUrl ? (
+                        <img className="card-image" src={imageUrl} alt={item.title} loading="lazy" width={400} height={180} />
+                      ) : (
+                        <div className="card-image placeholder" aria-hidden="true" />
+                      )}
+                      <div className="card-body">
+                        <div className="card-meta-row">
+                          <p className="tag">{item.transactionType}</p>
+                          <span className="trending-tag">Trending</span>
+                        </div>
+                        <h3>{item.title}</h3>
+                        <p className="price">{formatPrice(item.priceCents)}</p>
+                        <p className="meta">{item.viewCount} views · {item._count.savedBy} saves</p>
+                        <p className="meta">{item.campus}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+                {!trending.length && (
+                  <div className="card">
+                    <p>No trending listings yet.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {type !== "all" && type !== "TRENDING" && (
             <div>
               <h2 className="section-title">
                 {type === "SELL" ? "Buy & Sell" : type === "RENT" ? "Rentals" : type === "FREE" ? "Free Stuff" : "Housing"}

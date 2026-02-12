@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { createReport, createReview, createMutualReview, startConversation, toggleSavedListing, markAsSoldAction, toggleFollow } from "@/app/actions";
+import { createReport, createReview, createMutualReview, startConversation, toggleSavedListing, markAsSoldAction, toggleFollow, incrementViewCount } from "@/app/actions";
 import SubmitButton from "@/components/SubmitButton";
 import ShareButton from "@/components/ShareButton";
 import BadgeList from "@/components/BadgeList";
@@ -61,6 +61,9 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   if (!listing) {
     return <div>Listing not found.</div>;
   }
+
+  // Fire-and-forget view count increment
+  incrementViewCount(listing.id).catch(() => {});
 
   const currentUserId = getCurrentUserId();
   const isSaved = listing.savedBy.some((save) => save.userId === currentUserId);
@@ -182,6 +185,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
             {formatPrice(listing.priceCents)}
           </p>
           <p className="meta">Status: {formatStatus(listing.status)}</p>
+          <p className="meta">{listing.viewCount} views</p>
           <p className="meta">
             Delivery: {listing.deliveryOptions.length ? listing.deliveryOptions.map(formatDelivery).join(", ") : "Meet on campus"}
           </p>
