@@ -381,18 +381,16 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                 src={item.images[0].url}
                 alt={item.title}
                 width={400}
-                height={180}
+                height={400}
                 loading="lazy"
               />
             ) : (
               <div className="card-image placeholder" aria-hidden="true" />
             )}
             <div className="card-body">
-              <p className="tag">{item.transactionType}</p>
-              <h3>{item.title}</h3>
               <p className="price">{formatPrice(item.priceCents)}</p>
+              <h3>{item.title}</h3>
               <p className="meta">{item.campus}</p>
-              <p className="meta">Seller: {item.user.name}</p>
             </div>
           </Link>
         ))}

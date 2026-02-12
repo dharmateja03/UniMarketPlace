@@ -126,7 +126,6 @@ export default async function MarketplacePage({
 
   const cardFor = (listing: (typeof listings)[number]) => {
     const imageUrl = listing.images[0]?.url;
-    const isSaved = listing.savedBy.some((save) => save.userId === userId);
     return (
       <Link key={listing.id} className="card card-hover" href={`/marketplace/${listing.id}`}>
         {imageUrl ? (
@@ -136,32 +135,15 @@ export default async function MarketplacePage({
             alt={listing.title}
             loading="lazy"
             width={400}
-            height={180}
+            height={400}
           />
         ) : (
           <div className="card-image placeholder" aria-hidden="true" />
         )}
         <div className="card-body">
-          <div className="card-meta-row">
-            <p className="tag">{listing.transactionType}</p>
-            <div style={{ display: "flex", gap: 4 }}>
-              {listing.priceCents === 0 && <span className="free-tag">FREE</span>}
-              {listing.bundleId && <span className="bundle-tag">Bundle</span>}
-              {isSaved && <span className="saved-pill">Saved</span>}
-            </div>
-          </div>
-          <h3>{listing.title}</h3>
           <p className="price">{formatPrice(listing.priceCents)}</p>
-          {listing.flairs.length > 0 && (
-            <div className="flair-list">
-              {listing.flairs.map((flair) => (
-                <span key={flair} className="flair-chip">{flair}</span>
-              ))}
-            </div>
-          )}
+          <h3>{listing.title}</h3>
           <p className="meta">{listing.campus}</p>
-          <p className="meta">Status: {formatStatus(listing.status)}</p>
-          <p className="meta">Seller: {listing.user.name}</p>
         </div>
       </Link>
     );
@@ -195,10 +177,29 @@ export default async function MarketplacePage({
         </Link>
       </div>
 
+      <div className="filter-chips">
+        {categoryOptions.map((value) => (
+          <Link
+            key={value}
+            className={`filter-chip ${category === value ? "active" : ""}`}
+            href={`/marketplace?category=${encodeURIComponent(value)}`}
+          >
+            {categoryIcons[value] ?? ""} {value}
+          </Link>
+        ))}
+      </div>
+
       <div className="market-layout">
         <aside className="filter-panel">
           <h3>Categories</h3>
           <div className="category-list">
+            <Link
+              className={`category-item ${!category || category === "all" ? "active" : ""}`}
+              href="/marketplace"
+            >
+              <span>{"\u{1F6D2}"}</span>
+              <span>Browse all</span>
+            </Link>
             {categoryOptions.map((value) => (
               <Link
                 key={value}
@@ -209,7 +210,6 @@ export default async function MarketplacePage({
                 <span>{value}</span>
               </Link>
             ))}
-            {!categoryOptions.length && <p className="meta">No categories yet.</p>}
           </div>
           <Link className="button" href="/saved">
             Saved items
@@ -327,18 +327,13 @@ export default async function MarketplacePage({
                       return (
                         <Link key={item.id} className="card card-hover" href={`/marketplace/${item.id}`}>
                           {imageUrl ? (
-                            <img className="card-image" src={imageUrl} alt={item.title} loading="lazy" width={400} height={180} />
+                            <img className="card-image" src={imageUrl} alt={item.title} loading="lazy" width={400} height={400} />
                           ) : (
                             <div className="card-image placeholder" aria-hidden="true" />
                           )}
                           <div className="card-body">
-                            <div className="card-meta-row">
-                              <p className="tag">{item.transactionType}</p>
-                              <span className="trending-tag">Trending</span>
-                            </div>
-                            <h3>{item.title}</h3>
                             <p className="price">{formatPrice(item.priceCents)}</p>
-                            <p className="meta">{item.viewCount} views \u00B7 {item._count.savedBy} saves</p>
+                            <h3>{item.title}</h3>
                             <p className="meta">{item.campus}</p>
                           </div>
                         </Link>
@@ -416,18 +411,13 @@ export default async function MarketplacePage({
                   return (
                     <Link key={item.id} className="card card-hover" href={`/marketplace/${item.id}`}>
                       {imageUrl ? (
-                        <img className="card-image" src={imageUrl} alt={item.title} loading="lazy" width={400} height={180} />
+                        <img className="card-image" src={imageUrl} alt={item.title} loading="lazy" width={400} height={400} />
                       ) : (
                         <div className="card-image placeholder" aria-hidden="true" />
                       )}
                       <div className="card-body">
-                        <div className="card-meta-row">
-                          <p className="tag">{item.transactionType}</p>
-                          <span className="trending-tag">Trending</span>
-                        </div>
-                        <h3>{item.title}</h3>
                         <p className="price">{formatPrice(item.priceCents)}</p>
-                        <p className="meta">{item.viewCount} views · {item._count.savedBy} saves</p>
+                        <h3>{item.title}</h3>
                         <p className="meta">{item.campus}</p>
                       </div>
                     </Link>

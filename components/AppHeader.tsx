@@ -36,6 +36,14 @@ export default function AppHeader() {
       <Link href="/">
         <strong>UniHub</strong>
       </Link>
+      <form className="header-search" action="/marketplace" method="get">
+        <input
+          name="q"
+          placeholder="Search Marketplace"
+          autoComplete="off"
+          type="search"
+        />
+      </form>
       <nav>
         <Link href="/marketplace">Marketplace</Link>
         <Link href="/saved">Saved</Link>
