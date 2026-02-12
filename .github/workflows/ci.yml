@@ -23,3 +23,5 @@ jobs:
       - run: npx prisma generate
 
       - run: npx next build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
