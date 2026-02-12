@@ -1,6 +1,20 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { getUserBadges } from "@/lib/badges";
+import BadgeList from "@/components/BadgeList";
+
+function formatPrice(cents: number) {
+  if (cents === 0) return "Free";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD"
+  }).format(cents / 100);
+}
+
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
+}
 
 export default async function ProfilePage() {
   const userId = getCurrentUserId();
@@ -8,7 +22,8 @@ export default async function ProfilePage() {
     where: { id: userId },
     include: {
       listings: { include: { images: true } },
-      reviewsReceived: true
+      reviewsReceived: true,
+      bundles: { include: { listings: { include: { images: true } } } },
     }
   });
 
@@ -16,10 +31,32 @@ export default async function ProfilePage() {
     return <div>User not found.</div>;
   }
 
+  const [
+    savedCount,
+    salesCount,
+    purchasesCount,
+    followersCount,
+    followingCount,
+    recentTransactions,
+    badges,
+  ] = await Promise.all([
+    prisma.savedListing.count({ where: { userId } }),
+    prisma.transaction.count({ where: { sellerId: userId } }),
+    prisma.transaction.count({ where: { buyerId: userId } }),
+    prisma.follow.count({ where: { followingId: userId } }),
+    prisma.follow.count({ where: { followerId: userId } }),
+    prisma.transaction.findMany({
+      where: { OR: [{ sellerId: userId }, { buyerId: userId }] },
+      include: { listing: true, buyer: true, seller: true },
+      orderBy: { completedAt: "desc" },
+      take: 10,
+    }),
+    getUserBadges(userId),
+  ]);
+
   const activeListings = user.listings.length;
   const sellListings = user.listings.filter((listing) => listing.transactionType === "SELL").length;
   const rentListings = user.listings.filter((listing) => listing.transactionType === "RENT").length;
-  const savedCount = await prisma.savedListing.count({ where: { userId } });
   const averageRating =
     user.reviewsReceived.length > 0
       ? user.reviewsReceived.reduce((sum, review) => sum + review.rating, 0) /
@@ -42,14 +79,19 @@ export default async function ProfilePage() {
             <div>
               <p className="tag">Student profile</p>
               <h1>{user.name}</h1>
+              <BadgeList badges={badges} />
               <p className="meta">{user.universityEmail}</p>
               <p className="meta">Signed in as {user.email}</p>
               <p className="meta">
                 Rating: {averageRating.toFixed(1)} ({user.reviewsReceived.length} reviews)
               </p>
+              <p className="meta">
+                {followersCount} followers \u00B7 {followingCount} following
+              </p>
             </div>
           </div>
           <div className="profile-actions">
+            <Link className="button" href="/bundles/new">Create Bundle</Link>
             <button className="button">Edit Profile</button>
             <button className="button primary">Sign Out</button>
           </div>
@@ -74,6 +116,16 @@ export default async function ProfilePage() {
             <p className="tag">Saved</p>
             <h2>{savedCount}</h2>
             <p className="meta">Saved items</p>
+          </div>
+          <div className="stat-card">
+            <p className="tag">Sales</p>
+            <h2>{salesCount}</h2>
+            <p className="meta">Completed sales</p>
+          </div>
+          <div className="stat-card">
+            <p className="tag">Purchases</p>
+            <h2>{purchasesCount}</h2>
+            <p className="meta">Items bought</p>
           </div>
         </div>
       </div>
@@ -104,6 +156,53 @@ export default async function ProfilePage() {
               </div>
             )}
           </div>
+
+          {/* Bundles */}
+          {user.bundles.length > 0 && (
+            <>
+              <h2 className="section-title">Your Bundles</h2>
+              <div className="card-grid">
+                {user.bundles.map((bundle) => (
+                  <Link className="card card-hover" key={bundle.id} href={`/bundles/${bundle.id}`}>
+                    <div className="card-body">
+                      <span className="bundle-tag">Bundle</span>
+                      <h3>{bundle.title}</h3>
+                      <p className="meta">{bundle.listings.length} items</p>
+                      {bundle.discountPercent > 0 && (
+                        <p className="meta">{bundle.discountPercent}% off</p>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Transaction History */}
+          {recentTransactions.length > 0 && (
+            <>
+              <h2 className="section-title">Transaction History</h2>
+              <div className="transaction-list">
+                {recentTransactions.map((tx) => {
+                  const isSeller = tx.sellerId === userId;
+                  return (
+                    <Link key={tx.id} className="transaction-item" href={`/marketplace/${tx.listingId}`}>
+                      <div>
+                        <p style={{ fontWeight: 600 }}>{tx.listing.title}</p>
+                        <p className="meta">
+                          {isSeller ? `Sold to ${tx.buyer.name}` : `Bought from ${tx.seller.name}`}
+                        </p>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <p className="price">{formatPrice(tx.priceCents)}</p>
+                        <p className="meta">{formatDate(tx.completedAt)}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </section>
 
         <aside className="profile-side">

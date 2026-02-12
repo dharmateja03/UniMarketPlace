@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function AppHeader() {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -47,6 +48,7 @@ export default function AppHeader() {
           )}
         </Link>
         <Link href="/profile">Profile</Link>
+        <ThemeToggle />
         <Link className="nav-accent" href="/marketplace/new">
           Post Listing
         </Link>

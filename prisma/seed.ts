@@ -5,26 +5,28 @@ const prisma = new PrismaClient();
 async function main() {
   const demoUser = await prisma.user.upsert({
     where: { email: "alex@student.edu" },
-    update: {},
+    update: { isVerified: true },
     create: {
       id: "demo-user",
       name: "Alex Rivera",
       email: "alex@student.edu",
       universityEmail: "alex@campus.edu",
       campus: "Main Campus",
+      isVerified: true,
       imageUrl: "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=400"
     }
   });
 
   const secondUser = await prisma.user.upsert({
     where: { email: "jordan@student.edu" },
-    update: {},
+    update: { isVerified: true },
     create: {
       id: "demo-user-2",
       name: "Jordan Lee",
       email: "jordan@student.edu",
       universityEmail: "jordan@campus.edu",
       campus: "North Campus",
+      isVerified: true,
       imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400"
     }
   });
@@ -45,12 +47,8 @@ async function main() {
       userId: demoUser.id,
       images: {
         create: [
-          {
-            url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200"
-          },
-          {
-            url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=1200"
-          }
+          { url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200" },
+          { url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=1200" }
         ]
       }
     }
@@ -63,26 +61,18 @@ async function main() {
       id: "demo-convo",
       listingId: listing.id,
       participants: {
-        create: [
-          { userId: demoUser.id },
-          { userId: secondUser.id }
-        ]
+        create: [{ userId: demoUser.id }, { userId: secondUser.id }]
       },
       messages: {
         create: [
-          {
-            senderId: secondUser.id,
-            body: "Is this still available? I can meet on campus this week."
-          },
-          {
-            senderId: demoUser.id,
-            body: "Yep! I am free Wednesday afternoon after 3pm."
-          }
+          { senderId: secondUser.id, body: "Is this still available? I can meet on campus this week." },
+          { senderId: demoUser.id, body: "Yep! I am free Wednesday afternoon after 3pm." }
         ]
       }
     }
   });
 
+  // Housing listing with new fields
   await prisma.listing.upsert({
     where: { id: "demo-listing-2" },
     update: {},
@@ -98,14 +88,15 @@ async function main() {
       rentalPeriodDays: 90,
       deliveryOptions: ["MEETUP"],
       userId: secondUser.id,
+      moveInDate: new Date("2026-06-01"),
+      moveOutDate: new Date("2026-08-31"),
+      furnished: true,
+      roommates: 0,
+      petsAllowed: false,
       images: {
         create: [
-          {
-            url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200"
-          },
-          {
-            url: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200"
-          }
+          { url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200" },
+          { url: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200" }
         ]
       }
     }
@@ -127,12 +118,8 @@ async function main() {
       userId: demoUser.id,
       images: {
         create: [
-          {
-            url: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=1200"
-          },
-          {
-            url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200"
-          }
+          { url: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=1200" },
+          { url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200" }
         ]
       }
     }
@@ -154,12 +141,8 @@ async function main() {
       userId: secondUser.id,
       images: {
         create: [
-          {
-            url: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200"
-          },
-          {
-            url: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200"
-          }
+          { url: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200" },
+          { url: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200" }
         ]
       }
     }
@@ -181,12 +164,8 @@ async function main() {
       userId: demoUser.id,
       images: {
         create: [
-          {
-            url: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200"
-          },
-          {
-            url: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1200"
-          }
+          { url: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200" },
+          { url: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=1200" }
         ]
       }
     }
@@ -209,12 +188,8 @@ async function main() {
       userId: secondUser.id,
       images: {
         create: [
-          {
-            url: "https://images.unsplash.com/photo-1519183071298-a2962e4023c9?q=80&w=1200"
-          },
-          {
-            url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1200"
-          }
+          { url: "https://images.unsplash.com/photo-1519183071298-a2962e4023c9?q=80&w=1200" },
+          { url: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1200" }
         ]
       }
     }
@@ -237,9 +212,7 @@ async function main() {
       userId: demoUser.id,
       images: {
         create: [
-          {
-            url: "https://images.unsplash.com/photo-1455849318743-b2233052fcff?q=80&w=1200"
-          }
+          { url: "https://images.unsplash.com/photo-1455849318743-b2233052fcff?q=80&w=1200" }
         ]
       }
     }
@@ -261,12 +234,8 @@ async function main() {
       userId: secondUser.id,
       images: {
         create: [
-          {
-            url: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=1200"
-          },
-          {
-            url: "https://images.unsplash.com/photo-1472224371017-08207f84aaae?q=80&w=1200"
-          }
+          { url: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=1200" },
+          { url: "https://images.unsplash.com/photo-1472224371017-08207f84aaae?q=80&w=1200" }
         ]
       }
     }
@@ -288,9 +257,59 @@ async function main() {
       userId: demoUser.id,
       images: {
         create: [
-          {
-            url: "https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?q=80&w=1200"
-          }
+          { url: "https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?q=80&w=1200" }
+        ]
+      }
+    }
+  });
+
+  // Free listing
+  await prisma.listing.upsert({
+    where: { id: "demo-listing-free" },
+    update: {},
+    create: {
+      id: "demo-listing-free",
+      title: "Moving out - free desk lamp",
+      description: "Works perfectly, just don't need it anymore. First come first serve!",
+      priceCents: 0,
+      category: "Furniture",
+      condition: "Good",
+      campus: "Main Campus",
+      transactionType: "SELL",
+      deliveryOptions: ["MEETUP", "PICKUP"],
+      userId: demoUser.id,
+      images: {
+        create: [
+          { url: "https://images.unsplash.com/photo-1507473885765-e6ed057ab6fe?q=80&w=1200" }
+        ]
+      }
+    }
+  });
+
+  // Housing listing with roommates
+  await prisma.listing.upsert({
+    where: { id: "demo-listing-housing" },
+    update: {},
+    create: {
+      id: "demo-listing-housing",
+      title: "2BR apartment - roommate needed",
+      description: "Looking for a roommate for fall semester. Shared bathroom, great location near campus.",
+      priceCents: 85000,
+      category: "Housing",
+      condition: "Good",
+      campus: "Main Campus",
+      transactionType: "RENT",
+      rentalPeriodDays: 120,
+      deliveryOptions: ["MEETUP"],
+      userId: demoUser.id,
+      moveInDate: new Date("2026-08-15"),
+      moveOutDate: new Date("2026-12-15"),
+      furnished: true,
+      roommates: 1,
+      petsAllowed: true,
+      images: {
+        create: [
+          { url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200" }
         ]
       }
     }
@@ -333,6 +352,57 @@ async function main() {
       reason: "Suspected scam",
       details: "Price seems too low, please review."
     }
+  });
+
+  // Follow: Jordan follows Alex
+  await prisma.follow.upsert({
+    where: {
+      followerId_followingId: {
+        followerId: secondUser.id,
+        followingId: demoUser.id,
+      },
+    },
+    update: {},
+    create: {
+      followerId: secondUser.id,
+      followingId: demoUser.id,
+    },
+  });
+
+  // Transaction: Jordan bought the bike from Alex
+  await prisma.transaction.upsert({
+    where: {
+      listingId_buyerId: {
+        listingId: "demo-listing-3",
+        buyerId: secondUser.id,
+      },
+    },
+    update: {},
+    create: {
+      listingId: "demo-listing-3",
+      sellerId: demoUser.id,
+      buyerId: secondUser.id,
+      priceCents: 28000,
+    },
+  });
+
+  // Bundle: Alex's moving out sale
+  const bundle = await prisma.bundle.upsert({
+    where: { id: "demo-bundle" },
+    update: {},
+    create: {
+      id: "demo-bundle",
+      title: "Alex's Moving Out Sale",
+      description: "Graduating and need to clear everything. Take it all for a discount!",
+      discountPercent: 15,
+      userId: demoUser.id,
+    },
+  });
+
+  // Add some listings to the bundle
+  await prisma.listing.updateMany({
+    where: { id: { in: ["demo-listing-5", "demo-listing-free"] } },
+    data: { bundleId: bundle.id },
   });
 }
 

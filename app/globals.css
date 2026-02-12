@@ -843,6 +843,285 @@ textarea {
   }
 }
 
+/* ── Dark Mode ── */
+
+[data-theme="dark"] {
+  --bg: #141210;
+  --panel: #1e1c18;
+  --ink: #e8e4dc;
+  --muted: #9a958c;
+  --accent: #ff8f3a;
+  --accent-2: #3db89c;
+  --border: #2e2a24;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141210;
+    --panel: #1e1c18;
+    --ink: #e8e4dc;
+    --muted: #9a958c;
+    --accent: #ff8f3a;
+    --accent-2: #3db89c;
+    --border: #2e2a24;
+    --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+}
+
+[data-theme="dark"] body {
+  background: var(--bg);
+}
+
+[data-theme="dark"] header {
+  background: rgba(30, 28, 24, 0.95);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: var(--panel);
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .hero-tile { background: #2a2622; }
+[data-theme="dark"] .hero-tile.accent { background: #3a2a1a; }
+[data-theme="dark"] .hero-tile.accent-2 { background: #1a3028; }
+[data-theme="dark"] .stat-card { background: #2a2622; }
+[data-theme="dark"] .category-item { background: #2a2622; }
+[data-theme="dark"] .category-item.active { background: #1a3028; }
+[data-theme="dark"] .message-row { background: #2a2622; }
+[data-theme="dark"] .message.mine { background: #3a2a1a; border-color: #4a3a2a; }
+[data-theme="dark"] .upload-panel { background: #2a2622; }
+[data-theme="dark"] .choice-grid { background: var(--panel); }
+[data-theme="dark"] .pill { background: #2a2622; }
+[data-theme="dark"] .pill.subtle { background: #1a3028; color: #3db89c; border-color: #2a3a34; }
+[data-theme="dark"] .saved-pill { background: #3a2a1a; color: #e0a070; }
+[data-theme="dark"] .card-image.placeholder { background: linear-gradient(130deg, #2a2622, #1e1c18); }
+[data-theme="dark"] .detail-image.placeholder { background: linear-gradient(130deg, #2a2622, #1e1c18); }
+[data-theme="dark"] .form-error { background: #2a1a1a; border-color: #4a2020; color: #f08080; }
+[data-theme="dark"] .share-button { background: #2a2622; }
+[data-theme="dark"] .message-avatar { background: #3a2a1a; color: #e0a070; }
+[data-theme="dark"] .profile-avatar { background: linear-gradient(140deg, #3a2a1a, #4a3a2a 55%, #3a2a1a); }
+[data-theme="dark"] .nav-accent { background: var(--accent); }
+
+/* ── Theme Toggle ── */
+
+.theme-toggle {
+  padding: 8px 12px;
+  font-size: 1.1rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* ── Badges ── */
+
+.badge-list {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.user-badge.verified {
+  background: #e7f2ef;
+  color: #1f5b4f;
+  border: 1px solid #c5ddd6;
+}
+
+.user-badge.trusted {
+  background: #fff7ef;
+  color: #7a3d1b;
+  border: 1px solid #ffd2b0;
+}
+
+.user-badge.quick {
+  background: #eef0ff;
+  color: #3b3f8a;
+  border: 1px solid #c8ccf0;
+}
+
+[data-theme="dark"] .user-badge.verified { background: #1a3028; color: #6dd4b8; border-color: #2a4038; }
+[data-theme="dark"] .user-badge.trusted { background: #3a2a1a; color: #e0a070; border-color: #4a3a2a; }
+[data-theme="dark"] .user-badge.quick { background: #1a1a30; color: #8888d0; border-color: #2a2a40; }
+
+/* ── Free Tag ── */
+
+.free-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #d4f5e0;
+  color: #1a6b3a;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+[data-theme="dark"] .free-tag { background: #1a3020; color: #6dd490; }
+
+/* ── Bundle Tag ── */
+
+.bundle-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #ffe6cf;
+  color: #7a3d1b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+[data-theme="dark"] .bundle-tag { background: #3a2a1a; color: #e0a070; }
+
+/* ── Housing Details ── */
+
+.housing-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #eef4f2;
+  border: 1px solid #d5e4df;
+}
+
+.housing-details p {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .housing-details { background: #1a3028; border-color: #2a4038; }
+
+/* ── Transaction History ── */
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.transaction-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* ── Follow Button ── */
+
+.follow-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  transition: transform 0.2s ease;
+}
+
+.follow-btn:hover {
+  transform: translateY(-1px);
+}
+
+.follow-btn.following {
+  background: var(--accent-2);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* ── Social Proof ── */
+
+.social-proof {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #eef4f2;
+  border: 1px solid #d5e4df;
+  font-size: 0.85rem;
+  color: var(--accent-2);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .social-proof { background: #1a3028; border-color: #2a4038; }
+
+/* ── Bundle Page ── */
+
+.bundle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bundle-pricing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bundle-pricing .original {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.bundle-pricing .discounted {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ── Housing Form Fields ── */
+
+.housing-fields {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #eef4f2;
+}
+
+.housing-fields legend {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.housing-fields label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .housing-fields { background: #1a3028; }
+
 @media (prefers-reduced-motion: reduce) {
   * {
     scroll-behavior: auto !important;

@@ -30,6 +30,11 @@ enum ReportStatus {
   RESOLVED
 }
 
+enum TransactionRole {
+  BUYER
+  SELLER
+}
+
 model User {
   id              String   @id @default(cuid())
   name            String
@@ -37,6 +42,7 @@ model User {
   universityEmail String   @unique
   imageUrl        String?
   campus          String?
+  isVerified      Boolean  @default(false)
   createdAt       DateTime @default(now())
   listings        Listing[]
   messages        Message[]
@@ -45,6 +51,11 @@ model User {
   reviewsReceived Review[] @relation("reviewsReceived")
   reviewsWritten  Review[] @relation("reviewsWritten")
   reports         Report[]
+  sales           Transaction[] @relation("sales")
+  purchases       Transaction[] @relation("purchases")
+  following       Follow[] @relation("following")
+  followers       Follow[] @relation("followers")
+  bundles         Bundle[]
 }
 
 model Listing {
@@ -69,6 +80,14 @@ model Listing {
   savedBy         SavedListing[]
   reviews         Review[]
   reports         Report[]
+  transactions    Transaction[]
+  bundleId        String?
+  bundle          Bundle?         @relation(fields: [bundleId], references: [id], onDelete: SetNull)
+  moveInDate      DateTime?
+  moveOutDate     DateTime?
+  furnished       Boolean?
+  roommates       Int?
+  petsAllowed     Boolean?
 }
 
 model ListingImage {
@@ -120,16 +139,21 @@ model SavedListing {
 }
 
 model Review {
-  id         String   @id @default(cuid())
-  rating     Int
-  comment    String?
-  createdAt  DateTime @default(now())
-  sellerId   String
-  reviewerId String
-  listingId  String?
-  seller     User     @relation("reviewsReceived", fields: [sellerId], references: [id])
-  reviewer   User     @relation("reviewsWritten", fields: [reviewerId], references: [id])
-  listing    Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  id            String           @id @default(cuid())
+  rating        Int
+  comment       String?
+  createdAt     DateTime         @default(now())
+  sellerId      String
+  reviewerId    String
+  listingId     String?
+  transactionId String?
+  role          TransactionRole?
+  seller        User             @relation("reviewsReceived", fields: [sellerId], references: [id])
+  reviewer      User             @relation("reviewsWritten", fields: [reviewerId], references: [id])
+  listing       Listing?         @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  transaction   Transaction?     @relation(fields: [transactionId], references: [id])
+
+  @@unique([transactionId, reviewerId])
 }
 
 model Report {
@@ -142,4 +166,41 @@ model Report {
   reporterId String
   listing    Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
   reporter   User         @relation(fields: [reporterId], references: [id])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  listingId   String
+  sellerId    String
+  buyerId     String
+  priceCents  Int
+  completedAt DateTime @default(now())
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  seller      User     @relation("sales", fields: [sellerId], references: [id])
+  buyer       User     @relation("purchases", fields: [buyerId], references: [id])
+  reviews     Review[]
+
+  @@unique([listingId, buyerId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+}
+
+model Bundle {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  discountPercent Int      @default(0)
+  userId          String
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id])
+  listings        Listing[]
 }

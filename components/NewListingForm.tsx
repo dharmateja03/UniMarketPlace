@@ -16,6 +16,7 @@ export default function NewListingForm() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [showHousing, setShowHousing] = useState(false);
 
   const previewUrls = useMemo(() => imageUrls, [imageUrls]);
 
@@ -157,10 +158,11 @@ export default function NewListingForm() {
         <input
           id="listing-category"
           name="category"
-          placeholder="Category… (e.g., Electronics)"
+          placeholder="Category\u2026 (e.g., Electronics)"
           autoComplete="off"
           required
           minLength={2}
+          onChange={(e) => setShowHousing(e.target.value.toLowerCase() === "housing")}
         />
         <label className="sr-only" htmlFor="listing-condition">
           Condition
@@ -185,6 +187,33 @@ export default function NewListingForm() {
           minLength={2}
         />
       </div>
+      {showHousing && (
+        <fieldset className="housing-fields">
+          <legend>Housing Details</legend>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              <label htmlFor="move-in" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Move-in date</label>
+              <input id="move-in" name="moveInDate" type="date" />
+            </div>
+            <div>
+              <label htmlFor="move-out" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Move-out date</label>
+              <input id="move-out" name="moveOutDate" type="date" />
+            </div>
+          </div>
+          <label>
+            <input type="checkbox" name="furnished" value="true" />
+            Furnished
+          </label>
+          <label>
+            <input type="checkbox" name="petsAllowed" value="true" />
+            Pets allowed
+          </label>
+          <div>
+            <label htmlFor="roommates-count" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Roommates</label>
+            <input id="roommates-count" name="roommates" type="number" min={0} placeholder="Number of roommates" />
+          </div>
+        </fieldset>
+      )}
       <label className="sr-only" htmlFor="listing-image">
         Images
       </label>

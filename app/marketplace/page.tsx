@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 
 function formatPrice(cents: number) {
+  if (cents === 0) return "Free";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD"
@@ -29,6 +30,8 @@ type MarketplaceSearchParams = {
   type?: string;
   min?: string;
   max?: string;
+  furnished?: string;
+  pets?: string;
 };
 
 export default async function MarketplacePage({
@@ -50,7 +53,7 @@ export default async function MarketplacePage({
     prisma.listing.findMany({ select: { campus: true }, distinct: ["campus"] }),
     prisma.listing.findMany({
       orderBy: { createdAt: "desc" },
-      include: { images: true, user: true, savedBy: true },
+      include: { images: true, user: true, savedBy: true, bundle: true },
       where: {
         AND: [
           query
@@ -63,9 +66,18 @@ export default async function MarketplacePage({
             : {},
           category && category !== "all" ? { category } : {},
           campus && campus !== "all" ? { campus } : {},
-          type !== "all" ? { transactionType: type as "SELL" | "RENT" } : {},
+          type === "FREE"
+            ? { priceCents: 0 }
+            : type === "HOUSING"
+              ? { category: "Housing" }
+              : type !== "all"
+                ? { transactionType: type as "SELL" | "RENT" }
+                : {},
           Number.isFinite(min) ? { priceCents: { gte: Math.round(min * 100) } } : {},
-          Number.isFinite(max) ? { priceCents: { lte: Math.round(max * 100) } } : {}
+          Number.isFinite(max) ? { priceCents: { lte: Math.round(max * 100) } } : {},
+          type === "HOUSING" && searchParams.furnished === "yes" ? { furnished: true } : {},
+          type === "HOUSING" && searchParams.furnished === "no" ? { furnished: false } : {},
+          type === "HOUSING" && searchParams.pets === "yes" ? { petsAllowed: true } : {},
         ]
       }
     })
@@ -84,21 +96,22 @@ export default async function MarketplacePage({
     Number.isFinite(max) ? `Max: $${max}` : null
   ].filter(Boolean);
 
-  const buySell = listings.filter((listing) => listing.transactionType === "SELL");
+  const buySell = listings.filter((listing) => listing.transactionType === "SELL" && listing.priceCents > 0);
   const rentals = listings.filter((listing) => listing.transactionType === "RENT");
+  const freeStuff = listings.filter((listing) => listing.priceCents === 0);
   const todayPicks = listings.slice(0, 6);
   const nearYou = listings.filter((listing) => listing.campus === primaryCampus).slice(0, 6);
 
   const categoryIcons: Record<string, string> = {
-    Electronics: "💻",
-    Housing: "🏡",
-    Furniture: "🪑",
-    Books: "📚",
-    Clothing: "🧥",
-    Services: "🛠️",
-    Tickets: "🎟️",
-    Bikes: "🚲",
-    Appliances: "🍳"
+    Electronics: "\u{1F4BB}",
+    Housing: "\u{1F3E1}",
+    Furniture: "\u{1FA91}",
+    Books: "\u{1F4DA}",
+    Clothing: "\u{1F9E5}",
+    Services: "\u{1F6E0}\u{FE0F}",
+    Tickets: "\u{1F39F}\u{FE0F}",
+    Bikes: "\u{1F6B2}",
+    Appliances: "\u{1F373}"
   };
 
   const cardFor = (listing: (typeof listings)[number]) => {
@@ -121,7 +134,11 @@ export default async function MarketplacePage({
         <div className="card-body">
           <div className="card-meta-row">
             <p className="tag">{listing.transactionType}</p>
-            {isSaved && <span className="saved-pill">Saved</span>}
+            <div style={{ display: "flex", gap: 4 }}>
+              {listing.priceCents === 0 && <span className="free-tag">FREE</span>}
+              {listing.bundleId && <span className="bundle-tag">Bundle</span>}
+              {isSaved && <span className="saved-pill">Saved</span>}
+            </div>
           </div>
           <h3>{listing.title}</h3>
           <p className="price">{formatPrice(listing.priceCents)}</p>
@@ -137,7 +154,7 @@ export default async function MarketplacePage({
     <div>
       <h1>Marketplace</h1>
       <p style={{ color: "var(--muted)", marginTop: 8 }}>
-        Browse student-only listings. Toggle between Buy & Sell or Rentals, or view all.
+        Browse student-only listings. Toggle between Buy & Sell, Rentals, Free Stuff, or Housing.
       </p>
 
       <div className="marketplace-tabs" style={{ marginTop: 16 }}>
@@ -149,6 +166,12 @@ export default async function MarketplacePage({
         </Link>
         <Link className={`tab ${type === "RENT" ? "active" : ""}`} href="/marketplace?type=RENT">
           Rentals
+        </Link>
+        <Link className={`tab ${type === "FREE" ? "active" : ""}`} href="/marketplace?type=FREE">
+          Free Stuff
+        </Link>
+        <Link className={`tab ${type === "HOUSING" ? "active" : ""}`} href="/marketplace?type=HOUSING">
+          Housing
         </Link>
       </div>
 
@@ -162,7 +185,7 @@ export default async function MarketplacePage({
                 className={`category-item ${category === value ? "active" : ""}`}
                 href={`/marketplace?category=${encodeURIComponent(value)}`}
               >
-                <span>{categoryIcons[value] ?? "🛒"}</span>
+                <span>{categoryIcons[value] ?? "\u{1F6D2}"}</span>
                 <span>{value}</span>
               </Link>
             ))}
@@ -179,7 +202,7 @@ export default async function MarketplacePage({
             <input
               id="filter-search"
               name="q"
-              placeholder="Search… (e.g., bike)"
+              placeholder="Search\u2026 (e.g., bike)"
               autoComplete="off"
               defaultValue={query ?? ""}
             />
@@ -212,6 +235,8 @@ export default async function MarketplacePage({
               <option value="all">Sell or rent</option>
               <option value="SELL">Buy & Sell</option>
               <option value="RENT">Rentals</option>
+              <option value="FREE">Free Stuff</option>
+              <option value="HOUSING">Housing</option>
             </select>
             <label className="sr-only" htmlFor="filter-min">
               Minimum price
@@ -221,7 +246,7 @@ export default async function MarketplacePage({
               name="min"
               type="number"
               step="0.01"
-              placeholder="Min price… (e.g., 25)"
+              placeholder="Min price\u2026 (e.g., 25)"
               autoComplete="off"
               inputMode="decimal"
               defaultValue={searchParams.min ?? ""}
@@ -234,11 +259,26 @@ export default async function MarketplacePage({
               name="max"
               type="number"
               step="0.01"
-              placeholder="Max price… (e.g., 250)"
+              placeholder="Max price\u2026 (e.g., 250)"
               autoComplete="off"
               inputMode="decimal"
               defaultValue={searchParams.max ?? ""}
             />
+            {type === "HOUSING" && (
+              <>
+                <label className="sr-only" htmlFor="filter-furnished">Furnished</label>
+                <select id="filter-furnished" name="furnished" defaultValue={searchParams.furnished ?? "any"}>
+                  <option value="any">Furnished: Any</option>
+                  <option value="yes">Furnished</option>
+                  <option value="no">Unfurnished</option>
+                </select>
+                <label className="sr-only" htmlFor="filter-pets">Pets</label>
+                <select id="filter-pets" name="pets" defaultValue={searchParams.pets ?? "any"}>
+                  <option value="any">Pets: Any</option>
+                  <option value="yes">Pets allowed</option>
+                </select>
+              </>
+            )}
             <button className="button" type="submit">
               Apply Filters
             </button>
@@ -249,7 +289,7 @@ export default async function MarketplacePage({
 
           {activeFilters.length > 0 && (
             <div className="active-filters">
-              Active: {activeFilters.join(" · ")}
+              Active: {activeFilters.join(" \u00B7 ")}
             </div>
           )}
         </aside>
@@ -258,7 +298,7 @@ export default async function MarketplacePage({
           {type === "all" && (
             <div className="section-stack">
               <div>
-                <h2 className="section-title">Today's Picks</h2>
+                <h2 className="section-title">Today&apos;s Picks</h2>
                 <div className="card-grid">
                   {todayPicks.map(cardFor)}
                   {!todayPicks.length && (
@@ -270,7 +310,7 @@ export default async function MarketplacePage({
               </div>
 
               <div>
-                <h2 className="section-title">Near You · {primaryCampus}</h2>
+                <h2 className="section-title">Near You \u00B7 {primaryCampus}</h2>
                 <div className="card-grid">
                   {nearYou.map(cardFor)}
                   {!nearYou.length && (
@@ -280,6 +320,15 @@ export default async function MarketplacePage({
                   )}
                 </div>
               </div>
+
+              {freeStuff.length > 0 && (
+                <div>
+                  <h2 className="section-title">Free Stuff</h2>
+                  <div className="card-grid">
+                    {freeStuff.map(cardFor)}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <h2 className="section-title">Buy & Sell</h2>
@@ -309,7 +358,9 @@ export default async function MarketplacePage({
 
           {type !== "all" && (
             <div>
-              <h2 className="section-title">{type === "SELL" ? "Buy & Sell" : "Rentals"}</h2>
+              <h2 className="section-title">
+                {type === "SELL" ? "Buy & Sell" : type === "RENT" ? "Rentals" : type === "FREE" ? "Free Stuff" : "Housing"}
+              </h2>
               <div className="card-grid">
                 {listings.map(cardFor)}
                 {!listings.length && (

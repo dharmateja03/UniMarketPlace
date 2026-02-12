@@ -15,6 +15,7 @@ cp .env.example .env
 ```
 Fill `DATABASE_URL` with your Neon connection string.
 Set `R2_*` variables for Cloudflare R2 uploads.
+Optionally set `NEXT_PUBLIC_BASE_URL` for shareable links (defaults to `http://localhost:3000`).
 
 3. Generate Prisma client + migrate + seed
 ```
@@ -28,18 +29,48 @@ npm run prisma:seed
 npm run dev
 ```
 
+## Features
+
+### Core Marketplace
+- Listings: buy/sell or rent, with status, condition, price, campus, delivery options
+- Multi-image upload (Cloudflare R2)
+- Filters: search, category, campus, type, price range
+- Sections: Today's Picks, Near You, Buy & Sell, Rentals
+- Chat: conversations + messages tied to listings
+- Saved listings
+- Reviews & seller ratings
+- Report listing + moderation queue
+- Shareable product links
+
+### Social & Trust
+- **Profile Badges** — Verified Student, Trusted Seller (5+ sales), Quick Responder (< 1hr avg response)
+- **Transaction History** — Mark listings as sold, track completed sales/purchases with buyer selection
+- **Mutual Reviews** — Both buyer and seller can review each other after a transaction completes
+- **Follow System** — Follow sellers, see social proof ("X bought from this seller") on listing pages
+
+### Marketplace Sections
+- **Free Stuff** — Dedicated tab for free items (priceCents = 0), FREE tag on cards
+- **Bundles** — Group listings into "Moving Out Sale" bundles with a discount percentage
+- **Housing / Sublease** — Housing tab with filters for furnished, pets allowed; listing form shows move-in/out dates, roommates, furnished status when category is "Housing"
+
+### UI
+- **Dark Mode** — Toggle in header, persists in localStorage, respects system `prefers-color-scheme`
+- Custom CSS design system (no Tailwind/shadcn) with warm, minimalist aesthetic
+
+## Key Files
+
+- `prisma/schema.prisma` — Database models
+- `app/actions.ts` — Server actions
+- `app/marketplace/page.tsx` — Marketplace with tabs and filters
+- `app/marketplace/[id]/page.tsx` — Listing detail with badges, reviews, follow, mark-as-sold
+- `app/profile/page.tsx` — Profile with badges, stats, transaction history, bundles
+- `app/bundles/[id]/page.tsx` — Bundle detail page
+- `app/bundles/new/page.tsx` — Create bundle page
+- `lib/badges.ts` — Badge computation logic
+- `components/ThemeToggle.tsx` — Dark mode toggle
+
 ## Notes
 - OAuth and university domain verification are planned next. Current auth uses a dev user (`demo-user`).
-- Listings support sell or rent with optional rental period.
-- Chat uses conversations + messages tied to listings.
-- Marketplace includes filters + simple recommendations.
 - Message notifications are polled every 5 seconds (no WebSockets).
-- Listing images can be uploaded to Cloudflare R2 via a signed URL.
-- Added Marketplace features: categories sidebar, saved listings, today’s picks, near-you section, seller reviews, reports, and a moderation queue.
-
-## Key files
-- `prisma/schema.prisma`
-- `app/marketplace/page.tsx`
-- `app/messages/[id]/page.tsx`
-- `app/actions.ts`
-# UniMarketPlace
+- Listing images are uploaded to Cloudflare R2 via signed URLs.
+- Moderation page is open; add auth/role gating before production.
