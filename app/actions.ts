@@ -19,6 +19,7 @@ export async function incrementViewCount(listingId: string) {
 
 export async function createListingAction(_: ActionState, formData: FormData): Promise<ActionState> {
   const imageUrls = formData.getAll("imageUrls").map((value) => String(value)).filter(Boolean);
+  const flairs = formData.getAll("flairs").map((value) => String(value)).filter(Boolean);
   const deliveryOptions = formData
     .getAll("deliveryOptions")
     .map((value) => String(value))
@@ -34,6 +35,7 @@ export async function createListingAction(_: ActionState, formData: FormData): P
     rentalPeriodDays: formData.get("rentalPeriodDays")
       ? Number(formData.get("rentalPeriodDays"))
       : null,
+    flairs,
     deliveryOptions,
     imageUrl: formData.get("imageUrl")
       ? String(formData.get("imageUrl"))
@@ -63,6 +65,7 @@ export async function createListingAction(_: ActionState, formData: FormData): P
       campus: parsed.data.campus,
       transactionType: parsed.data.transactionType,
       rentalPeriodDays: parsed.data.rentalPeriodDays ?? null,
+      flairs: parsed.data.flairs ?? [],
       deliveryOptions: parsed.data.deliveryOptions ?? ["MEETUP"],
       userId,
       moveInDate: parsed.data.moveInDate ? new Date(parsed.data.moveInDate) : null,

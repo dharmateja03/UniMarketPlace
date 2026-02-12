@@ -186,6 +186,13 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           </p>
           <p className="meta">Status: {formatStatus(listing.status)}</p>
           <p className="meta">{listing.viewCount} views</p>
+          {listing.flairs.length > 0 && (
+            <div className="flair-list" style={{ marginTop: 8 }}>
+              {listing.flairs.map((flair) => (
+                <span key={flair} className="flair-chip">{flair}</span>
+              ))}
+            </div>
+          )}
           <p className="meta">
             Delivery: {listing.deliveryOptions.length ? listing.deliveryOptions.map(formatDelivery).join(", ") : "Meet on campus"}
           </p>

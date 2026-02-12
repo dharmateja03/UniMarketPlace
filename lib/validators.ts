@@ -9,6 +9,7 @@ export const listingSchema = z.object({
   campus: z.string().min(2),
   transactionType: z.enum(["SELL", "RENT"]),
   rentalPeriodDays: z.number().int().positive().optional().nullable(),
+  flairs: z.array(z.string()).optional(),
   deliveryOptions: z.array(z.enum(["MEETUP", "DELIVERY", "PICKUP"])).optional(),
   imageUrl: z.string().url().optional().nullable(),
   imageUrls: z.array(z.string().url()).optional(),

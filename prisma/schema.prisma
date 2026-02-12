@@ -69,6 +69,7 @@ model Listing {
   status          ListingStatus   @default(AVAILABLE)
   transactionType TransactionType @default(SELL)
   rentalPeriodDays Int?
+  flairs          String[]
   deliveryOptions String[]
   campus          String
   viewCount       Int             @default(0)

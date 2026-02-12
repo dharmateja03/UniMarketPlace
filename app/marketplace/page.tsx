@@ -152,6 +152,13 @@ export default async function MarketplacePage({
           </div>
           <h3>{listing.title}</h3>
           <p className="price">{formatPrice(listing.priceCents)}</p>
+          {listing.flairs.length > 0 && (
+            <div className="flair-list">
+              {listing.flairs.map((flair) => (
+                <span key={flair} className="flair-chip">{flair}</span>
+              ))}
+            </div>
+          )}
           <p className="meta">{listing.campus}</p>
           <p className="meta">Status: {formatStatus(listing.status)}</p>
           <p className="meta">Seller: {listing.user.name}</p>

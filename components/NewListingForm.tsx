@@ -136,6 +136,16 @@ export default function NewListingForm() {
         disabled
       />
       </div>
+      <fieldset className="flair-grid">
+        <legend>Add flairs</legend>
+        <label><input type="checkbox" name="flairs" value="Brand New" /> Brand New</label>
+        <label><input type="checkbox" name="flairs" value="Under a Year Old" /> Under a Year Old</label>
+        <label><input type="checkbox" name="flairs" value="Must Go ASAP" /> Must Go ASAP</label>
+        <label><input type="checkbox" name="flairs" value="Price Negotiable" /> Price Negotiable</label>
+        <label><input type="checkbox" name="flairs" value="Barely Used" /> Barely Used</label>
+        <label><input type="checkbox" name="flairs" value="Like New" /> Like New</label>
+        <label><input type="checkbox" name="flairs" value="Final Price" /> Final Price</label>
+      </fieldset>
       <fieldset className="choice-grid">
         <legend>Delivery preferences</legend>
         <label>
