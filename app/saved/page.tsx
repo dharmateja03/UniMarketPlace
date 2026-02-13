@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { toggleSavedListing } from "@/app/actions";
+import SubmitButton from "@/components/SubmitButton";
 
 function formatPrice(cents: number) {
+  if (cents === 0) return "Free";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD"
@@ -19,39 +22,68 @@ export default async function SavedPage() {
 
   return (
     <div>
-      <h1>Saved Items</h1>
-      <p className="meta" style={{ marginTop: 8 }}>
-        Keep track of listings you are interested in.
-      </p>
-      <div className="card-grid">
-        {saved.map((item) => (
-          <Link key={item.id} className="card card-hover" href={`/marketplace/${item.listingId}`}>
-            {item.listing.images[0]?.url ? (
-              <img
-                className="card-image"
-                src={item.listing.images[0].url}
-                alt={item.listing.title}
-                width={400}
-                height={180}
-              />
-            ) : (
-              <div className="card-image placeholder" aria-hidden="true" />
-            )}
-            <div className="card-body">
-              <p className="tag">{item.listing.transactionType}</p>
-              <h3>{item.listing.title}</h3>
-              <p className="price">{formatPrice(item.listing.priceCents)}</p>
-              <p className="meta">{item.listing.campus}</p>
-              <p className="meta">Seller: {item.listing.user.name}</p>
-            </div>
-          </Link>
-        ))}
-        {!saved.length && (
-          <div className="card">
-            <p>You have no saved listings yet.</p>
-          </div>
-        )}
+      <div className="saved-header">
+        <div>
+          <h1>Saved Items</h1>
+          <p className="meta" style={{ marginTop: 4 }}>
+            {saved.length} {saved.length === 1 ? "item" : "items"} saved
+          </p>
+        </div>
+        <Link className="button" href="/marketplace">Browse More</Link>
       </div>
+
+      {saved.length > 0 ? (
+        <div className="saved-grid">
+          {saved.map((item) => {
+            const listing = item.listing;
+            const isSold = listing.status === "SOLD";
+            return (
+              <div key={item.id} className={`saved-card${isSold ? " saved-card-sold" : ""}`}>
+                <Link href={`/marketplace/${item.listingId}`} className="saved-card-image-link">
+                  {listing.images[0]?.url ? (
+                    <img
+                      src={listing.images[0].url}
+                      alt={listing.title}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="saved-card-placeholder" aria-hidden="true" />
+                  )}
+                  <span className={`saved-status-badge ${isSold ? "sold" : "available"}`}>
+                    {isSold ? "Sold" : "Available"}
+                  </span>
+                </Link>
+                <div className="saved-card-body">
+                  <Link href={`/marketplace/${item.listingId}`}>
+                    <h3>{listing.title}</h3>
+                  </Link>
+                  <p className="meta">📍 {listing.campus}</p>
+                  <p className="saved-card-price">{formatPrice(listing.priceCents)}</p>
+                  <div className="saved-card-actions">
+                    {!isSold && (
+                      <Link href={`/marketplace/${item.listingId}`} className="button primary" style={{ flex: 1 }}>
+                        💬 Message Seller
+                      </Link>
+                    )}
+                    <form action={toggleSavedListing.bind(null, item.listingId)}>
+                      <SubmitButton label="♥ Remove" pendingLabel="..." />
+                    </form>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="saved-empty">
+          <p style={{ fontSize: "2rem", marginBottom: 8 }}>♥</p>
+          <h2>No saved items yet</h2>
+          <p className="meta">Browse the marketplace and save items you like.</p>
+          <Link className="button primary" href="/marketplace" style={{ marginTop: 16 }}>
+            Browse Marketplace
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

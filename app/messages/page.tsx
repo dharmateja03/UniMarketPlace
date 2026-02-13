@@ -2,6 +2,18 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 
+function timeAgo(date: Date) {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d`;
+  return `${Math.floor(days / 7)}w`;
+}
+
 export default async function MessagesPage() {
   const userId = getCurrentUserId();
   const conversations = await prisma.conversation.findMany({
@@ -9,70 +21,71 @@ export default async function MessagesPage() {
       participants: { some: { userId } }
     },
     include: {
-      listing: true,
+      listing: { include: { images: true } },
+      participants: { include: { user: true } },
       messages: { orderBy: { createdAt: "desc" }, take: 1 }
     },
     orderBy: { createdAt: "desc" }
   });
 
   return (
-    <div>
-      <div className="page-header">
-        <div>
+    <div className="messages-page">
+      {/* Sidebar: Conversation List */}
+      <aside className="messages-sidebar">
+        <div className="messages-sidebar-header">
           <h1>Messages</h1>
-          <p className="meta" style={{ marginTop: 8 }}>
-            Reply quickly to close deals faster.
-          </p>
+          <span className="pill">{conversations.length}</span>
         </div>
-        <Link className="button" href="/marketplace">
-          Find listings
-        </Link>
-      </div>
 
-      <div className="messages-layout">
-        <section className="panel">
-          <div className="message-header">
-            <h3>Inbox</h3>
-            <span className="pill">{conversations.length} chats</span>
-          </div>
-          <div className="message-list">
-            {conversations.map((convo) => (
-              <Link key={convo.id} className="message-row" href={`/messages/${convo.id}`}>
-                <div className="message-avatar">{convo.listing?.title?.slice(0, 1) ?? "C"}</div>
-                <div className="message-preview">
-                  <p className="tag">{convo.listing?.title ?? "Direct chat"}</p>
-                  <p className="meta">
-                    {convo.messages[0]?.body ?? "No messages yet"}
+        <div className="messages-conv-list">
+          {conversations.map((convo) => {
+            const otherUser = convo.participants.find((p) => p.userId !== userId)?.user;
+            const lastMessage = convo.messages[0];
+            const listingImg = convo.listing?.images?.[0]?.url;
+
+            return (
+              <Link key={convo.id} className="messages-conv-item" href={`/messages/${convo.id}`}>
+                <div className="messages-conv-avatar">
+                  {otherUser?.name?.charAt(0).toUpperCase() ?? "?"}
+                </div>
+                <div className="messages-conv-preview">
+                  <div className="messages-conv-top">
+                    <span className="messages-conv-name">{otherUser?.name ?? "Unknown"}</span>
+                    {lastMessage && (
+                      <span className="messages-conv-time">{timeAgo(lastMessage.createdAt)}</span>
+                    )}
+                  </div>
+                  {convo.listing && (
+                    <div className="messages-conv-listing">
+                      {listingImg && <img src={listingImg} alt="" />}
+                      <span>{convo.listing.title}</span>
+                    </div>
+                  )}
+                  <p className="messages-conv-snippet">
+                    {lastMessage?.body ?? "No messages yet"}
                   </p>
                 </div>
-                <span className="pill subtle">Open</span>
               </Link>
-            ))}
-            {!conversations.length && (
-              <div className="empty-state">
-                <p>No conversations yet. Start a chat from a listing.</p>
-                <Link className="button" href="/marketplace">
-                  Browse listings
-                </Link>
-              </div>
-            )}
-          </div>
-        </section>
-        <aside className="side-stack">
-          <div className="panel">
-            <h3>Tips for faster replies</h3>
-            <p className="meta">
-              Share your availability and preferred meeting location in your first message.
-            </p>
-          </div>
-          <div className="panel">
-            <h3>Stay safe</h3>
-            <p className="meta">
-              Keep your conversation in UniHub and meet in well-lit campus locations.
-            </p>
-          </div>
-        </aside>
-      </div>
+            );
+          })}
+
+          {!conversations.length && (
+            <div className="messages-empty">
+              <p>No conversations yet.</p>
+              <Link className="button" href="/marketplace">Browse listings</Link>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* Main area: placeholder when no convo selected */}
+      <main className="messages-main">
+        <div className="messages-main-empty">
+          <p style={{ fontSize: "2rem", marginBottom: 8 }}>💬</p>
+          <h2>Select a conversation</h2>
+          <p className="meta">Choose a chat from the left to start messaging.</p>
+        </div>
+      </main>
     </div>
   );
 }

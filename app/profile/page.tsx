@@ -21,14 +21,14 @@ export default async function ProfilePage() {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      listings: { include: { images: true } },
+      listings: { include: { images: true }, orderBy: { createdAt: "desc" } },
       reviewsReceived: true,
       bundles: { include: { listings: { include: { images: true } } } },
     }
   });
 
   if (!user) {
-    return <div>User not found.</div>;
+    return <div className="detail-empty">User not found.</div>;
   }
 
   const [
@@ -54,9 +54,8 @@ export default async function ProfilePage() {
     getUserBadges(userId),
   ]);
 
-  const activeListings = user.listings.length;
-  const sellListings = user.listings.filter((listing) => listing.transactionType === "SELL").length;
-  const rentListings = user.listings.filter((listing) => listing.transactionType === "RENT").length;
+  const activeListings = user.listings.filter((l) => l.status === "AVAILABLE");
+  const soldListings = user.listings.filter((l) => l.status === "SOLD");
   const averageRating =
     user.reviewsReceived.length > 0
       ? user.reviewsReceived.reduce((sum, review) => sum + review.rating, 0) /
@@ -65,103 +64,114 @@ export default async function ProfilePage() {
 
   return (
     <div>
-      <div className="profile-hero">
-        <div className="profile-card">
-          <div className="profile-main">
-            <div className="profile-avatar">
+      {/* Profile Header Card */}
+      <div className="profile-header-card">
+        <div className="profile-header-top">
+          <div className="profile-header-info">
+            <div className="detail-seller-avatar profile-avatar-lg">
               {user.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img src={user.imageUrl} alt={user.name} />
               ) : (
-                <span>{user.name.slice(0, 1).toUpperCase()}</span>
+                user.name.slice(0, 1).toUpperCase()
               )}
             </div>
             <div>
-              <p className="tag">Student profile</p>
-              <h1>{user.name}</h1>
-              <BadgeList badges={badges} />
+              <h1 className="profile-name">{user.name}</h1>
               <p className="meta">{user.universityEmail}</p>
-              <p className="meta">Signed in as {user.email}</p>
-              <p className="meta">
-                Rating: {averageRating.toFixed(1)} ({user.reviewsReceived.length} reviews)
-              </p>
-              <p className="meta">
-                {followersCount} followers \u00B7 {followingCount} following
-              </p>
+              <BadgeList badges={badges} />
+              <div className="profile-meta-row">
+                <span>⭐ {averageRating.toFixed(1)} ({user.reviewsReceived.length} reviews)</span>
+                <span>{followersCount} followers</span>
+                <span>{followingCount} following</span>
+              </div>
             </div>
           </div>
-          <div className="profile-actions">
+          <div className="profile-header-actions">
+            <Link className="button" href="/marketplace/new">Post Item</Link>
             <Link className="button" href="/bundles/new">Create Bundle</Link>
-            <button className="button">Edit Profile</button>
-            <button className="button primary">Sign Out</button>
           </div>
         </div>
-        <div className="profile-stats">
-          <div className="stat-card">
-            <p className="tag">Active</p>
-            <h2>{activeListings}</h2>
-            <p className="meta">Total listings</p>
+
+        {/* Stats Row */}
+        <div className="profile-stats-row">
+          <div className="profile-stat">
+            <span className="profile-stat-value">{activeListings.length}</span>
+            <span className="profile-stat-label">Active</span>
           </div>
-          <div className="stat-card">
-            <p className="tag">Sell</p>
-            <h2>{sellListings}</h2>
-            <p className="meta">Buy & sell posts</p>
+          <div className="profile-stat">
+            <span className="profile-stat-value">{salesCount}</span>
+            <span className="profile-stat-label">Sales</span>
           </div>
-          <div className="stat-card">
-            <p className="tag">Rent</p>
-            <h2>{rentListings}</h2>
-            <p className="meta">Rental posts</p>
+          <div className="profile-stat">
+            <span className="profile-stat-value">{purchasesCount}</span>
+            <span className="profile-stat-label">Purchases</span>
           </div>
-          <div className="stat-card">
-            <p className="tag">Saved</p>
-            <h2>{savedCount}</h2>
-            <p className="meta">Saved items</p>
-          </div>
-          <div className="stat-card">
-            <p className="tag">Sales</p>
-            <h2>{salesCount}</h2>
-            <p className="meta">Completed sales</p>
-          </div>
-          <div className="stat-card">
-            <p className="tag">Purchases</p>
-            <h2>{purchasesCount}</h2>
-            <p className="meta">Items bought</p>
+          <div className="profile-stat">
+            <span className="profile-stat-value">{savedCount}</span>
+            <span className="profile-stat-label">Saved</span>
           </div>
         </div>
       </div>
 
-      <div className="profile-sections">
-        <section>
-          <h2 className="section-title">Your Listings</h2>
-          <div className="card-grid">
-            {user.listings.map((listing) => (
-              <Link className="card card-hover" key={listing.id} href={`/marketplace/${listing.id}`}>
-                {listing.images[0]?.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img className="card-image" src={listing.images[0].url} alt={listing.title} />
-                ) : (
-                  <div className="card-image placeholder" aria-hidden="true" />
-                )}
-                <div className="card-body">
-                  <p className="tag">{listing.transactionType}</p>
-                  <h3>{listing.title}</h3>
-                  <p className="meta">{listing.campus}</p>
-                  <p className="meta">Status: {listing.status}</p>
-                </div>
-              </Link>
-            ))}
-            {!user.listings.length && (
-              <div className="card">
-                <p>You have not posted a listing yet.</p>
+      <div className="profile-content">
+        {/* Main Content */}
+        <div className="profile-main-col">
+          {/* Active Listings */}
+          <div className="detail-section">
+            <div className="home-section-header" style={{ marginTop: 0 }}>
+              <h2>Active Listings</h2>
+              <span className="pill">{activeListings.length}</span>
+            </div>
+            {activeListings.length > 0 ? (
+              <div className="profile-listing-grid">
+                {activeListings.map((listing) => (
+                  <Link key={listing.id} className="card card-hover" href={`/marketplace/${listing.id}`}>
+                    {listing.images[0]?.url ? (
+                      <img className="card-image" src={listing.images[0].url} alt={listing.title} loading="lazy" width={400} height={400} />
+                    ) : (
+                      <div className="card-image placeholder" aria-hidden="true" />
+                    )}
+                    <div className="card-body">
+                      <p className="price">{formatPrice(listing.priceCents)}</p>
+                      <h3>{listing.title}</h3>
+                      <p className="meta">{listing.campus}</p>
+                    </div>
+                  </Link>
+                ))}
               </div>
+            ) : (
+              <p className="meta">No active listings. <Link href="/marketplace/new" style={{ color: "var(--accent)" }}>Post one now</Link></p>
             )}
           </div>
 
+          {/* Sold Items */}
+          {soldListings.length > 0 && (
+            <div className="detail-section">
+              <h2>Sold Items</h2>
+              <div className="profile-sold-list">
+                {soldListings.map((listing) => (
+                  <Link key={listing.id} className="profile-sold-item" href={`/marketplace/${listing.id}`}>
+                    {listing.images[0]?.url ? (
+                      <img src={listing.images[0].url} alt={listing.title} loading="lazy" />
+                    ) : (
+                      <div className="profile-sold-placeholder" aria-hidden="true" />
+                    )}
+                    <div>
+                      <p style={{ fontWeight: 600 }}>{listing.title}</p>
+                      <p className="meta">{formatPrice(listing.priceCents)}</p>
+                    </div>
+                    <span className="pill">Sold</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Bundles */}
           {user.bundles.length > 0 && (
-            <>
-              <h2 className="section-title">Your Bundles</h2>
-              <div className="card-grid">
+            <div className="detail-section">
+              <h2>Your Bundles</h2>
+              <div className="profile-listing-grid">
                 {user.bundles.map((bundle) => (
                   <Link className="card card-hover" key={bundle.id} href={`/bundles/${bundle.id}`}>
                     <div className="card-body">
@@ -175,18 +185,18 @@ export default async function ProfilePage() {
                   </Link>
                 ))}
               </div>
-            </>
+            </div>
           )}
 
           {/* Transaction History */}
           {recentTransactions.length > 0 && (
-            <>
-              <h2 className="section-title">Transaction History</h2>
-              <div className="transaction-list">
+            <div className="detail-section">
+              <h2>Transaction History</h2>
+              <div className="profile-tx-list">
                 {recentTransactions.map((tx) => {
                   const isSeller = tx.sellerId === userId;
                   return (
-                    <Link key={tx.id} className="transaction-item" href={`/marketplace/${tx.listingId}`}>
+                    <Link key={tx.id} className="profile-tx-item" href={`/marketplace/${tx.listingId}`}>
                       <div>
                         <p style={{ fontWeight: 600 }}>{tx.listing.title}</p>
                         <p className="meta">
@@ -201,21 +211,30 @@ export default async function ProfilePage() {
                   );
                 })}
               </div>
-            </>
+            </div>
           )}
-        </section>
+        </div>
 
-        <aside className="profile-side">
+        {/* Sidebar */}
+        <aside className="profile-sidebar">
           <div className="panel">
-            <h3>Marketplace Tips</h3>
+            <h3>Account</h3>
+            <nav className="profile-sidebar-nav">
+              <Link href="/saved">♥ Saved Items</Link>
+              <Link href="/messages">💬 Messages</Link>
+              <Link href="/marketplace">🔍 Browse Marketplace</Link>
+            </nav>
+          </div>
+          <div className="panel">
+            <h3>Boost your sales</h3>
             <p className="meta">
-              Listings with 3+ photos sell 40% faster. Add clear images, set fair pricing, and respond within 24 hours.
+              Listings with 3+ photos sell 40% faster. Add clear images and respond within 24 hours.
             </p>
           </div>
           <div className="panel">
             <h3>Safety</h3>
             <p className="meta">
-              Meet in well-lit campus locations, confirm university emails, and keep communication in UniHub chat.
+              Meet in well-lit campus locations and keep communication in UniHub chat.
             </p>
           </div>
         </aside>

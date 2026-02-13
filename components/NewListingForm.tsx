@@ -136,6 +136,30 @@ export default function NewListingForm() {
         disabled
       />
       </div>
+      <fieldset className="choice-grid">
+        <legend>Sale / Discount (optional)</legend>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div>
+            <label htmlFor="discount-percent" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Discount %</label>
+            <input
+              id="discount-percent"
+              name="discountPercent"
+              type="number"
+              min={0}
+              max={99}
+              placeholder="e.g., 20"
+            />
+          </div>
+          <div>
+            <label htmlFor="sale-ends" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Sale ends</label>
+            <input
+              id="sale-ends"
+              name="saleEndsAt"
+              type="datetime-local"
+            />
+          </div>
+        </div>
+      </fieldset>
       <fieldset className="flair-grid">
         <legend>Add flairs</legend>
         <label><input type="checkbox" name="flairs" value="Brand New" /> Brand New</label>

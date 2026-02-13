@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum ListingStatus {
@@ -56,6 +57,8 @@ model User {
   following       Follow[] @relation("following")
   followers       Follow[] @relation("followers")
   bundles         Bundle[]
+  offersMade      Offer[]  @relation("offersMade")
+  offersReceived  Offer[]  @relation("offersReceived")
 }
 
 model Listing {
@@ -83,6 +86,7 @@ model Listing {
   reviews         Review[]
   reports         Report[]
   transactions    Transaction[]
+  offers          Offer[]
   bundleId        String?
   bundle          Bundle?         @relation(fields: [bundleId], references: [id], onDelete: SetNull)
   moveInDate      DateTime?
@@ -90,6 +94,9 @@ model Listing {
   furnished       Boolean?
   roommates       Int?
   petsAllowed     Boolean?
+  originalPriceCents Int?
+  discountPercent    Int?
+  saleEndsAt         DateTime?
 }
 
 model ListingImage {
@@ -194,6 +201,27 @@ model Follow {
   following   User     @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COUNTERED
+}
+
+model Offer {
+  id          String      @id @default(cuid())
+  amountCents Int
+  message     String?
+  status      OfferStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  listingId   String
+  buyerId     String
+  sellerId    String
+  listing     Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer       User        @relation("offersMade", fields: [buyerId], references: [id])
+  seller      User        @relation("offersReceived", fields: [sellerId], references: [id])
 }
 
 model Bundle {

@@ -126,22 +126,33 @@ export default async function MarketplacePage({
 
   const cardFor = (listing: (typeof listings)[number]) => {
     const imageUrl = listing.images[0]?.url;
+    const hasDiscount = listing.originalPriceCents && listing.originalPriceCents > listing.priceCents;
     return (
       <Link key={listing.id} className="card card-hover" href={`/marketplace/${listing.id}`}>
-        {imageUrl ? (
-          <img
-            className="card-image"
-            src={imageUrl}
-            alt={listing.title}
-            loading="lazy"
-            width={400}
-            height={400}
-          />
-        ) : (
-          <div className="card-image placeholder" aria-hidden="true" />
-        )}
+        <div style={{ position: "relative" }}>
+          {imageUrl ? (
+            <img
+              className="card-image"
+              src={imageUrl}
+              alt={listing.title}
+              loading="lazy"
+              width={400}
+              height={400}
+            />
+          ) : (
+            <div className="card-image placeholder" aria-hidden="true" />
+          )}
+          {listing.discountPercent && listing.discountPercent > 0 && (
+            <span className="card-discount-badge">-{listing.discountPercent}%</span>
+          )}
+        </div>
         <div className="card-body">
-          <p className="price">{formatPrice(listing.priceCents)}</p>
+          <div className="card-price-row">
+            <p className="price">{formatPrice(listing.priceCents)}</p>
+            {hasDiscount && (
+              <span className="card-original-price">{formatPrice(listing.originalPriceCents!)}</span>
+            )}
+          </div>
           <h3>{listing.title}</h3>
           <p className="meta">{listing.campus}</p>
         </div>
