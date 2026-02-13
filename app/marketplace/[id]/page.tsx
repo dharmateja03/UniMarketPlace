@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
-import { createReport, createReview, createMutualReview, startConversation, toggleSavedListing, markAsSoldAction, toggleFollow, incrementViewCount, createOffer, respondToOffer } from "@/app/actions";
+import { createReport, createReview, createMutualReview, startConversation, toggleSavedListing, markAsSoldAction, toggleFollow, incrementViewCount, createOffer, respondToOffer, toggleReviewsDisabled } from "@/app/actions";
 import SubmitButton from "@/components/SubmitButton";
 import ShareButton from "@/components/ShareButton";
 import BadgeList from "@/components/BadgeList";
@@ -336,7 +336,15 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
             )}
 
             {listing.userId === currentUserId && (
-              <p className="meta" style={{ marginTop: 8 }}>This is your listing.</p>
+              <>
+                <p className="meta" style={{ marginTop: 8 }}>This is your listing.</p>
+                <form action={toggleReviewsDisabled.bind(null, listing.id)} style={{ marginTop: 8 }}>
+                  <SubmitButton
+                    label={listing.reviewsDisabled ? "Enable Reviews" : "Disable Reviews"}
+                    pendingLabel="Updating..."
+                  />
+                </form>
+              </>
             )}
           </div>
 
@@ -458,54 +466,60 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
       {/* Reviews */}
       <div className="detail-section" style={{ marginTop: 32 }}>
         <h2>Reviews</h2>
-        <div className="review-list">
-          {listing.reviews.map((review) => (
-            <div className="panel" key={review.id}>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <p className="tag">⭐ {review.rating}/5</p>
-                {review.role && (
-                  <span className="user-badge verified">{review.role === "BUYER" ? "Buyer" : "Seller"}</span>
-                )}
-              </div>
-              <p style={{ fontWeight: 600 }}>{review.reviewer.name}</p>
-              {review.comment && <p className="meta">{review.comment}</p>}
+        {listing.reviewsDisabled ? (
+          <p className="meta">Reviews are disabled for this listing.</p>
+        ) : (
+          <>
+            <div className="review-list">
+              {listing.reviews.map((review) => (
+                <div className="panel" key={review.id}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <p className="tag">⭐ {review.rating}/5</p>
+                    {review.role && (
+                      <span className="user-badge verified">{review.role === "BUYER" ? "Buyer" : "Seller"}</span>
+                    )}
+                  </div>
+                  <p style={{ fontWeight: 600 }}>{review.reviewer.name}</p>
+                  {review.comment && <p className="meta">{review.comment}</p>}
+                </div>
+              ))}
+              {!listing.reviews.length && (
+                <p className="meta">No reviews yet.</p>
+              )}
             </div>
-          ))}
-          {!listing.reviews.length && (
-            <p className="meta">No reviews yet.</p>
-          )}
-        </div>
 
-        {userTransaction && !existingReview && (
-          <form action={createMutualReview} className="panel" style={{ marginTop: 16 }}>
-            <input type="hidden" name="transactionId" value={userTransaction.id} />
-            <h3>Review this transaction</h3>
-            <select name="rating" defaultValue="5">
-              <option value="5">5 - Excellent</option>
-              <option value="4">4 - Good</option>
-              <option value="3">3 - Okay</option>
-              <option value="2">2 - Poor</option>
-              <option value="1">1 - Bad</option>
-            </select>
-            <textarea name="comment" placeholder="Write a short review..." />
-            <SubmitButton label="Post Review" pendingLabel="Posting..." />
-          </form>
-        )}
+            {userTransaction && !existingReview && (
+              <form action={createMutualReview} className="panel" style={{ marginTop: 16 }}>
+                <input type="hidden" name="transactionId" value={userTransaction.id} />
+                <h3>Review this transaction</h3>
+                <select name="rating" defaultValue="5">
+                  <option value="5">5 - Excellent</option>
+                  <option value="4">4 - Good</option>
+                  <option value="3">3 - Okay</option>
+                  <option value="2">2 - Poor</option>
+                  <option value="1">1 - Bad</option>
+                </select>
+                <textarea name="comment" placeholder="Write a short review..." />
+                <SubmitButton label="Post Review" pendingLabel="Posting..." />
+              </form>
+            )}
 
-        {listing.userId !== currentUserId && !userTransaction && (
-          <form action={createReview} className="panel" style={{ marginTop: 16 }}>
-            <input type="hidden" name="sellerId" value={listing.userId} />
-            <input type="hidden" name="listingId" value={listing.id} />
-            <select name="rating" defaultValue="5">
-              <option value="5">5 - Excellent</option>
-              <option value="4">4 - Good</option>
-              <option value="3">3 - Okay</option>
-              <option value="2">2 - Poor</option>
-              <option value="1">1 - Bad</option>
-            </select>
-            <textarea name="comment" placeholder="Write a short review..." />
-            <SubmitButton label="Post Review" pendingLabel="Posting..." />
-          </form>
+            {listing.userId !== currentUserId && !userTransaction && (
+              <form action={createReview} className="panel" style={{ marginTop: 16 }}>
+                <input type="hidden" name="sellerId" value={listing.userId} />
+                <input type="hidden" name="listingId" value={listing.id} />
+                <select name="rating" defaultValue="5">
+                  <option value="5">5 - Excellent</option>
+                  <option value="4">4 - Good</option>
+                  <option value="3">3 - Okay</option>
+                  <option value="2">2 - Poor</option>
+                  <option value="1">1 - Bad</option>
+                </select>
+                <textarea name="comment" placeholder="Write a short review..." />
+                <SubmitButton label="Post Review" pendingLabel="Posting..." />
+              </form>
+            )}
+          </>
         )}
       </div>
 

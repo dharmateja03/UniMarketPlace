@@ -32,6 +32,7 @@ type MarketplaceSearchParams = {
   max?: string;
   furnished?: string;
   pets?: string;
+  page?: string;
 };
 
 export default async function MarketplacePage({
@@ -45,45 +46,55 @@ export default async function MarketplacePage({
   const type = searchParams.type?.trim() ?? "all";
   const min = Number(searchParams.min);
   const max = Number(searchParams.max);
+  const page = Math.max(1, Number(searchParams.page) || 1);
+  const perPage = 20;
 
   const userId = getCurrentUserId();
-  const [user, categories, campuses, listings] = await Promise.all([
+
+  const whereClause = {
+    AND: [
+      query
+        ? {
+            OR: [
+              { title: { contains: query, mode: "insensitive" as const } },
+              { description: { contains: query, mode: "insensitive" as const } }
+            ]
+          }
+        : {},
+      category && category !== "all" ? { category } : {},
+      campus && campus !== "all" ? { campus } : {},
+      type === "FREE"
+        ? { priceCents: 0 }
+        : type === "HOUSING"
+          ? { category: "Housing" }
+          : type === "TRENDING"
+            ? {}
+            : type !== "all"
+              ? { transactionType: type as "SELL" | "RENT" }
+              : {},
+      Number.isFinite(min) ? { priceCents: { gte: Math.round(min * 100) } } : {},
+      Number.isFinite(max) ? { priceCents: { lte: Math.round(max * 100) } } : {},
+      type === "HOUSING" && searchParams.furnished === "yes" ? { furnished: true } : {},
+      type === "HOUSING" && searchParams.furnished === "no" ? { furnished: false } : {},
+      type === "HOUSING" && searchParams.pets === "yes" ? { petsAllowed: true } : {},
+    ]
+  };
+
+  const [user, categories, campuses, totalCount, listings] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId } }),
     prisma.listing.findMany({ select: { category: true }, distinct: ["category"] }),
     prisma.listing.findMany({ select: { campus: true }, distinct: ["campus"] }),
+    prisma.listing.count({ where: whereClause }),
     prisma.listing.findMany({
       orderBy: { createdAt: "desc" },
       include: { images: true, user: true, savedBy: true, bundle: true },
-      where: {
-        AND: [
-          query
-            ? {
-                OR: [
-                  { title: { contains: query, mode: "insensitive" } },
-                  { description: { contains: query, mode: "insensitive" } }
-                ]
-              }
-            : {},
-          category && category !== "all" ? { category } : {},
-          campus && campus !== "all" ? { campus } : {},
-          type === "FREE"
-            ? { priceCents: 0 }
-            : type === "HOUSING"
-              ? { category: "Housing" }
-              : type === "TRENDING"
-                ? {}
-                : type !== "all"
-                  ? { transactionType: type as "SELL" | "RENT" }
-                  : {},
-          Number.isFinite(min) ? { priceCents: { gte: Math.round(min * 100) } } : {},
-          Number.isFinite(max) ? { priceCents: { lte: Math.round(max * 100) } } : {},
-          type === "HOUSING" && searchParams.furnished === "yes" ? { furnished: true } : {},
-          type === "HOUSING" && searchParams.furnished === "no" ? { furnished: false } : {},
-          type === "HOUSING" && searchParams.pets === "yes" ? { petsAllowed: true } : {},
-        ]
-      }
+      where: whereClause,
+      skip: (page - 1) * perPage,
+      take: perPage,
     })
   ]);
+
+  const totalPages = Math.ceil(totalCount / perPage);
 
   // Trending: top listings by views + saves + conversations
   const trending = await prisma.listing.findMany({
@@ -456,6 +467,47 @@ export default async function MarketplacePage({
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              {page > 1 && (
+                <Link
+                  className="pagination-btn"
+                  href={`/marketplace?${new URLSearchParams({
+                    ...(query ? { q: query } : {}),
+                    ...(category ? { category } : {}),
+                    ...(campus ? { campus } : {}),
+                    ...(type !== "all" ? { type } : {}),
+                    ...(searchParams.min ? { min: searchParams.min } : {}),
+                    ...(searchParams.max ? { max: searchParams.max } : {}),
+                    page: String(page - 1),
+                  }).toString()}`}
+                >
+                  ← Previous
+                </Link>
+              )}
+              <span className="pagination-info">
+                Page {page} of {totalPages}
+              </span>
+              {page < totalPages && (
+                <Link
+                  className="pagination-btn"
+                  href={`/marketplace?${new URLSearchParams({
+                    ...(query ? { q: query } : {}),
+                    ...(category ? { category } : {}),
+                    ...(campus ? { campus } : {}),
+                    ...(type !== "all" ? { type } : {}),
+                    ...(searchParams.min ? { min: searchParams.min } : {}),
+                    ...(searchParams.max ? { max: searchParams.max } : {}),
+                    page: String(page + 1),
+                  }).toString()}`}
+                >
+                  Next →
+                </Link>
+              )}
             </div>
           )}
         </section>

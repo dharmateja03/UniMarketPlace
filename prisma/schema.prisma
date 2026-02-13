@@ -97,6 +97,7 @@ model Listing {
   originalPriceCents Int?
   discountPercent    Int?
   saleEndsAt         DateTime?
+  reviewsDisabled    Boolean         @default(false)
   views              ListingView[]
 }
 

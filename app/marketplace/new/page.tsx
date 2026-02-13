@@ -1,3 +1,4 @@
+import Link from "next/link";
 import NewListingForm from "@/components/NewListingForm";
 
 export default function NewListingPage() {
@@ -26,6 +27,10 @@ export default function NewListingPage() {
           <h1 className="post-form-title">Post a Listing</h1>
           <p className="meta" style={{ marginBottom: 20 }}>
             Tell us what you&apos;re selling so we can help you find the right buyer.
+            {" "}
+            <Link href="/marketplace/bulk" style={{ color: "var(--accent)", fontWeight: 600 }}>
+              Moving out? Bulk upload →
+            </Link>
           </p>
           <NewListingForm />
         </div>

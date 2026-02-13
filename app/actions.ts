@@ -276,6 +276,14 @@ export async function createReview(formData: FormData) {
     throw new Error("You cannot review your own listing.");
   }
 
+  // Check if reviews are disabled on this listing
+  if (parsed.data.listingId) {
+    const listing = await prisma.listing.findUnique({ where: { id: parsed.data.listingId }, select: { reviewsDisabled: true } });
+    if (listing?.reviewsDisabled) {
+      throw new Error("Reviews are disabled for this listing.");
+    }
+  }
+
   // Rate limit: 3 reviews per minute
   if (isRateLimited(`${userId}:createReview`, 3, 60_000)) {
     throw new Error("You're posting reviews too fast. Please slow down.");
@@ -606,4 +614,95 @@ export async function respondToOffer(formData: FormData) {
 
   revalidatePath(`/marketplace/${offer.listingId}`);
   revalidatePath("/profile");
+}
+
+// ── Toggle Reviews on Listing ──
+export async function toggleReviewsDisabled(listingId: string) {
+  const userId = getCurrentUserId();
+
+  const listing = await prisma.listing.findUnique({ where: { id: listingId }, select: { userId: true, reviewsDisabled: true } });
+  if (!listing || listing.userId !== userId) {
+    throw new Error("Not authorized.");
+  }
+
+  try {
+    await prisma.listing.update({
+      where: { id: listingId },
+      data: { reviewsDisabled: !listing.reviewsDisabled },
+    });
+  } catch {
+    throw new Error("Failed to update review settings.");
+  }
+
+  revalidatePath(`/marketplace/${listingId}`);
+}
+
+// ── Bulk Create Listings ──
+export async function bulkCreateListings(_: ActionState, formData: FormData): Promise<ActionState> {
+  const userId = getCurrentUserId();
+  const count = Number(formData.get("count") || 0);
+
+  if (count < 1 || count > 20) {
+    return { error: "You can create between 1 and 20 items at once." };
+  }
+
+  const items: Array<{
+    title: string;
+    description: string;
+    priceCents: number;
+    category: string;
+    condition: string;
+    campus: string;
+    imageUrl: string | null;
+  }> = [];
+
+  for (let i = 0; i < count; i++) {
+    const title = String(formData.get(`title_${i}`) || "").trim();
+    const description = String(formData.get(`description_${i}`) || "").trim();
+    const price = Number(formData.get(`price_${i}`) || 0);
+    const category = String(formData.get(`category_${i}`) || "").trim();
+    const condition = String(formData.get(`condition_${i}`) || "").trim();
+    const campus = String(formData.get(`campus_${i}`) || "").trim();
+    const imageUrl = formData.get(`imageUrl_${i}`) ? String(formData.get(`imageUrl_${i}`)) : null;
+
+    if (title.length < 4) return { error: `Item ${i + 1}: Title must be at least 4 characters.` };
+    if (description.length < 10) return { error: `Item ${i + 1}: Description must be at least 10 characters.` };
+    if (category.length < 3) return { error: `Item ${i + 1}: Category is required.` };
+    if (condition.length < 3) return { error: `Item ${i + 1}: Condition is required.` };
+    if (campus.length < 3) return { error: `Item ${i + 1}: Campus is required.` };
+
+    items.push({
+      title,
+      description,
+      priceCents: Math.round(price * 100),
+      category,
+      condition,
+      campus,
+      imageUrl,
+    });
+  }
+
+  try {
+    for (const item of items) {
+      await prisma.listing.create({
+        data: {
+          title: item.title,
+          description: item.description,
+          priceCents: item.priceCents,
+          category: item.category,
+          condition: item.condition,
+          campus: item.campus,
+          userId,
+          flairs: ["Must Go ASAP"],
+          deliveryOptions: ["MEETUP"],
+          images: item.imageUrl ? { create: [{ url: item.imageUrl }] } : undefined,
+        },
+      });
+    }
+  } catch {
+    return { error: "Something went wrong creating your listings. Some may have been created." };
+  }
+
+  revalidatePath("/marketplace");
+  redirect("/marketplace/new/success");
 }
