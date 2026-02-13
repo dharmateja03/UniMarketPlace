@@ -97,6 +97,17 @@ model Listing {
   originalPriceCents Int?
   discountPercent    Int?
   saleEndsAt         DateTime?
+  views              ListingView[]
+}
+
+model ListingView {
+  id         String   @id @default(cuid())
+  listingId  String
+  userId     String
+  viewedAt   DateTime @default(now())
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, userId])
 }
 
 model ListingImage {

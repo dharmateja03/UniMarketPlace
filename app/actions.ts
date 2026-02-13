@@ -11,13 +11,47 @@ type ActionState = {
   error: string | null;
 };
 
-// ── View Count ──
+// ── View Count (deduplicated per user, 24h cooldown) ──
 export async function incrementViewCount(listingId: string) {
   try {
-    await prisma.listing.update({
+    const userId = getCurrentUserId();
+
+    // Don't count owner views
+    const listing = await prisma.listing.findUnique({
       where: { id: listingId },
-      data: { viewCount: { increment: 1 } },
+      select: { userId: true },
     });
+    if (listing?.userId === userId) return;
+
+    const existing = await prisma.listingView.findUnique({
+      where: { listingId_userId: { listingId, userId } },
+    });
+
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    if (existing) {
+      // Already viewed — only re-count if older than 24h
+      if (existing.viewedAt < oneDayAgo) {
+        await prisma.listingView.update({
+          where: { id: existing.id },
+          data: { viewedAt: new Date() },
+        });
+        await prisma.listing.update({
+          where: { id: listingId },
+          data: { viewCount: { increment: 1 } },
+        });
+      }
+      // else: viewed recently, skip
+    } else {
+      // First view ever from this user
+      await prisma.listingView.create({
+        data: { listingId, userId },
+      });
+      await prisma.listing.update({
+        where: { id: listingId },
+        data: { viewCount: { increment: 1 } },
+      });
+    }
   } catch {
     // silently ignore — non-critical
   }
