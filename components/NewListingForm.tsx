@@ -2,14 +2,27 @@
 
 import { useFormState } from "react-dom";
 import { useMemo, useState } from "react";
-import SubmitButton from "@/components/SubmitButton";
 import { createListingAction } from "@/app/actions";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { FormCheckbox } from "@/components/ui/checkbox";
+import { FormSwitch } from "@/components/ui/switch";
+import { Upload, ImagePlus, X, AlertCircle, Loader2 } from "lucide-react";
 
-type FormState = {
-  error: string | null;
-};
-
+type FormState = { error: string | null };
 const initialState: FormState = { error: null };
+
+const FLAIRS = [
+  "Brand New",
+  "Under a Year Old",
+  "Must Go ASAP",
+  "Price Negotiable",
+  "Barely Used",
+  "Like New",
+  "Final Price",
+];
 
 export default function NewListingForm() {
   const [state, formAction] = useFormState(createListingAction, initialState);
@@ -17,131 +30,132 @@ export default function NewListingForm() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [showHousing, setShowHousing] = useState(false);
+  const [isRent, setIsRent] = useState(false);
 
   const previewUrls = useMemo(() => imageUrls, [imageUrls]);
 
   async function handleUpload(file: File) {
     setUploadError(null);
     setUploading(true);
-
     try {
       const signRes = await fetch("/api/uploads/r2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: file.name, contentType: file.type })
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
       });
-
-      if (!signRes.ok) {
-        throw new Error("Failed to get upload URL.");
-      }
-
-      const { uploadUrl, publicUrl } = (await signRes.json()) as {
-        uploadUrl: string;
-        publicUrl: string;
-      };
-
-      const uploadRes = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error("Upload failed.");
-      }
-
+      if (!signRes.ok) throw new Error("Failed to get upload URL.");
+      const { uploadUrl, publicUrl } = (await signRes.json()) as { uploadUrl: string; publicUrl: string };
+      const uploadRes = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
+      if (!uploadRes.ok) throw new Error("Upload failed.");
       setImageUrls((prev) => [...prev, publicUrl]);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Upload failed.";
-      setUploadError(message);
+      setUploadError(error instanceof Error ? error.message : "Upload failed.");
     } finally {
       setUploading(false);
     }
   }
 
+  function removeImage(url: string) {
+    setImageUrls((prev) => prev.filter((u) => u !== url));
+  }
+
   return (
-    <form action={formAction} noValidate>
+    <form action={formAction} noValidate className="space-y-6">
+      {/* Error banner */}
       {state.error && (
-        <div className="form-error" role="alert">
+        <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 [data-theme='dark']:bg-red-950/30 [data-theme='dark']:border-red-900 [data-theme='dark']:text-red-400" role="alert">
+          <AlertCircle className="h-4 w-4 shrink-0" />
           {state.error}
         </div>
       )}
-      <label className="sr-only" htmlFor="listing-title">
-        Listing title
-      </label>
-      <input
-        id="listing-title"
-        name="title"
-        placeholder="Title… (e.g., Physics Textbook)"
-        autoComplete="off"
-        required
-        minLength={4}
-      />
-      <label className="sr-only" htmlFor="listing-description">
-        Listing description
-      </label>
-      <textarea
-        id="listing-description"
-        name="description"
-        placeholder="Description… (e.g., Lightly used, includes notes)"
-        autoComplete="off"
-        required
-        minLength={10}
-      />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
-        <label className="sr-only" htmlFor="listing-price">
-          Price
-        </label>
-        <input
-          id="listing-price"
-          name="price"
-          type="number"
-          step="0.01"
-          placeholder="Price… (e.g., 120.00)"
-          autoComplete="off"
-          inputMode="decimal"
-          required
-          min={0}
-        />
-        <label className="sr-only" htmlFor="listing-type">
-          Listing type
-        </label>
-      <select
-        id="listing-type"
-        name="transactionType"
-        defaultValue="SELL"
-        onChange={(event) => {
-          const rentalInput = document.getElementById("rental-days") as HTMLInputElement | null;
-          if (!rentalInput) return;
-          rentalInput.disabled = event.target.value !== "RENT";
-          if (event.target.value !== "RENT") {
-            rentalInput.value = "";
-          }
-        }}
-      >
-        <option value="SELL">Sell</option>
-        <option value="RENT">Rent</option>
-      </select>
-        <label className="sr-only" htmlFor="rental-days">
-          Rental period in days
-        </label>
-      <input
-        id="rental-days"
-        name="rentalPeriodDays"
-        type="number"
-        placeholder="Rental days… (e.g., 7)"
-        autoComplete="off"
-        inputMode="numeric"
-        min={1}
-        disabled
-      />
+
+      {/* ── Basic Info ── */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="listing-title">Title</Label>
+          <Input
+            id="listing-title"
+            name="title"
+            placeholder="e.g., Physics Textbook — 8th Edition"
+            autoComplete="off"
+            required
+            minLength={4}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="listing-description">Description</Label>
+          <Textarea
+            id="listing-description"
+            name="description"
+            placeholder="Describe condition, reason for selling, pickup details..."
+            autoComplete="off"
+            required
+            minLength={10}
+          />
+        </div>
       </div>
-      <fieldset className="choice-grid">
-        <legend>Sale / Discount (optional)</legend>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <div>
-            <label htmlFor="discount-percent" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Discount %</label>
-            <input
+
+      {/* ── Pricing & Type ── */}
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="text-base">💲</span> Pricing &amp; Type
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="listing-price">Price (USD)</Label>
+            <Input
+              id="listing-price"
+              name="price"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              autoComplete="off"
+              inputMode="decimal"
+              required
+              min={0}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="listing-type">Listing Type</Label>
+            <Select
+              id="listing-type"
+              name="transactionType"
+              defaultValue="SELL"
+              onChange={(e) => setIsRent(e.target.value === "RENT")}
+            >
+              <option value="SELL">Sell</option>
+              <option value="RENT">Rent</option>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rental-days" className={!isRent ? "text-muted-foreground" : ""}>
+              Rental Period (days)
+            </Label>
+            <Input
+              id="rental-days"
+              name="rentalPeriodDays"
+              type="number"
+              placeholder="e.g., 30"
+              autoComplete="off"
+              inputMode="numeric"
+              min={1}
+              disabled={!isRent}
+              className={!isRent ? "opacity-40" : ""}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Discount / Sale ── */}
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="text-base">🏷️</span> Sale / Discount
+          <span className="text-xs font-normal text-muted-foreground">Optional</span>
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="discount-percent">Discount %</Label>
+            <Input
               id="discount-percent"
               name="discountPercent"
               type="number"
@@ -150,164 +164,213 @@ export default function NewListingForm() {
               placeholder="e.g., 20"
             />
           </div>
-          <div>
-            <label htmlFor="sale-ends" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Sale ends</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="sale-ends">Sale Ends</Label>
+            <Input
               id="sale-ends"
               name="saleEndsAt"
               type="datetime-local"
             />
           </div>
         </div>
-      </fieldset>
-      <fieldset className="flair-grid">
-        <legend>Add flairs</legend>
-        <label><input type="checkbox" name="flairs" value="Brand New" /> Brand New</label>
-        <label><input type="checkbox" name="flairs" value="Under a Year Old" /> Under a Year Old</label>
-        <label><input type="checkbox" name="flairs" value="Must Go ASAP" /> Must Go ASAP</label>
-        <label><input type="checkbox" name="flairs" value="Price Negotiable" /> Price Negotiable</label>
-        <label><input type="checkbox" name="flairs" value="Barely Used" /> Barely Used</label>
-        <label><input type="checkbox" name="flairs" value="Like New" /> Like New</label>
-        <label><input type="checkbox" name="flairs" value="Final Price" /> Final Price</label>
-      </fieldset>
-      <fieldset className="choice-grid">
-        <legend>Delivery preferences</legend>
-        <label>
-          <input type="checkbox" name="deliveryOptions" value="MEETUP" defaultChecked />
-          Meet on campus
-        </label>
-        <label>
-          <input type="checkbox" name="deliveryOptions" value="PICKUP" />
-          Pickup only
-        </label>
-        <label>
-          <input type="checkbox" name="deliveryOptions" value="DELIVERY" />
-          Local delivery
-        </label>
-      </fieldset>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
-        <label className="sr-only" htmlFor="listing-category">
-          Category
-        </label>
-        <input
-          id="listing-category"
-          name="category"
-          placeholder="Category\u2026 (e.g., Electronics)"
-          autoComplete="off"
-          required
-          minLength={2}
-          onChange={(e) => setShowHousing(e.target.value.toLowerCase() === "housing")}
-        />
-        <label className="sr-only" htmlFor="listing-condition">
-          Condition
-        </label>
-        <input
-          id="listing-condition"
-          name="condition"
-          placeholder="Condition… (e.g., Like New)"
-          autoComplete="off"
-          required
-          minLength={2}
-        />
-        <label className="sr-only" htmlFor="listing-campus">
-          Campus
-        </label>
-        <input
-          id="listing-campus"
-          name="campus"
-          placeholder="Campus… (e.g., Main Campus)"
-          autoComplete="off"
-          required
-          minLength={2}
-        />
       </div>
+
+      {/* ── Flairs ── */}
+      <div className="rounded-lg border border-border bg-card p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="text-base">✨</span> Flairs
+        </h3>
+        <p className="text-xs text-muted-foreground">Select tags that describe your item</p>
+        <div className="flex flex-wrap gap-2">
+          {FLAIRS.map((flair) => (
+            <label key={flair} className="group cursor-pointer">
+              <input type="checkbox" name="flairs" value={flair} className="peer sr-only" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition-all peer-checked:border-accent peer-checked:bg-accent/10 peer-checked:text-accent hover:border-accent/50">
+                {flair}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Delivery ── */}
+      <div className="rounded-lg border border-border bg-card p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="text-base">📦</span> Delivery Preferences
+        </h3>
+        <div className="space-y-3">
+          <FormCheckbox name="deliveryOptions" value="MEETUP" defaultChecked label="Meet on campus" />
+          <FormCheckbox name="deliveryOptions" value="PICKUP" label="Pickup only" />
+          <FormCheckbox name="deliveryOptions" value="DELIVERY" label="Local delivery" />
+        </div>
+      </div>
+
+      {/* ── Category & Location ── */}
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="text-base">📍</span> Category &amp; Location
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="listing-category">Category</Label>
+            <Input
+              id="listing-category"
+              name="category"
+              placeholder="e.g., Electronics"
+              autoComplete="off"
+              required
+              minLength={2}
+              onChange={(e) => setShowHousing(e.target.value.toLowerCase() === "housing")}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="listing-condition">Condition</Label>
+            <Input
+              id="listing-condition"
+              name="condition"
+              placeholder="e.g., Like New"
+              autoComplete="off"
+              required
+              minLength={2}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="listing-campus">Campus</Label>
+            <Input
+              id="listing-campus"
+              name="campus"
+              placeholder="e.g., Main Campus"
+              autoComplete="off"
+              required
+              minLength={2}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Housing Details (conditional) ── */}
       {showHousing && (
-        <fieldset className="housing-fields">
-          <legend>Housing Details</legend>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div>
-              <label htmlFor="move-in" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Move-in date</label>
-              <input id="move-in" name="moveInDate" type="date" />
+        <div className="rounded-lg border border-secondary/20 bg-secondary/5 p-5 space-y-4">
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <span className="text-base">🏠</span> Housing Details
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="move-in">Move-in Date</Label>
+              <Input id="move-in" name="moveInDate" type="date" />
             </div>
-            <div>
-              <label htmlFor="move-out" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Move-out date</label>
-              <input id="move-out" name="moveOutDate" type="date" />
+            <div className="space-y-2">
+              <Label htmlFor="move-out">Move-out Date</Label>
+              <Input id="move-out" name="moveOutDate" type="date" />
             </div>
           </div>
-          <label>
-            <input type="checkbox" name="furnished" value="true" />
-            Furnished
-          </label>
-          <label>
-            <input type="checkbox" name="petsAllowed" value="true" />
-            Pets allowed
-          </label>
-          <div>
-            <label htmlFor="roommates-count" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Roommates</label>
-            <input id="roommates-count" name="roommates" type="number" min={0} placeholder="Number of roommates" />
+          <div className="space-y-3 pt-1">
+            <FormSwitch name="furnished" value="true" label="Furnished" description="Includes furniture and basics" />
+            <FormSwitch name="petsAllowed" value="true" label="Pets Allowed" description="Open to pet-owning tenants" />
           </div>
-        </fieldset>
+          <div className="space-y-2">
+            <Label htmlFor="roommates-count">Roommates</Label>
+            <Input id="roommates-count" name="roommates" type="number" min={0} placeholder="Number of roommates" className="max-w-[200px]" />
+          </div>
+        </div>
       )}
-      <fieldset className="choice-grid">
-        <legend>Contact info (optional)</legend>
-        <p className="meta" style={{ marginBottom: 4 }}>Let buyers reach you directly. Your info from your profile will be shown.</p>
-        <label>
-          <input type="checkbox" name="showEmail" value="true" />
-          Show my email on this listing
-        </label>
-        <label>
-          <input type="checkbox" name="showPhone" value="true" />
-          Show my phone number on this listing
-        </label>
-      </fieldset>
-      <label className="sr-only" htmlFor="listing-image">
-        Images
-      </label>
+
+      {/* ── Contact Info ── */}
+      <div className="rounded-lg border border-border bg-card p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <span className="text-base">📞</span> Contact Info
+          <span className="text-xs font-normal text-muted-foreground">Optional</span>
+        </h3>
+        <p className="text-xs text-muted-foreground">Let buyers reach you directly. Your info from your profile will be shown on this listing.</p>
+        <div className="space-y-3 pt-1">
+          <FormSwitch name="showEmail" value="true" label="Show my email" description="Buyers can see your email address" />
+          <FormSwitch name="showPhone" value="true" label="Show my phone number" description="Buyers can call or text you" />
+        </div>
+      </div>
+
+      {/* ── Photos ── */}
       {imageUrls.map((url) => (
         <input key={url} type="hidden" name="imageUrls" value={url} />
       ))}
-      <div className="upload-panel">
-        <div>
-          <p style={{ fontWeight: 600 }}>Listing photo</p>
-          <p className="meta">Upload up to 6 photos for better reach.</p>
+      <div className="rounded-lg border-2 border-dashed border-border bg-card p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <span className="text-base">📸</span> Photos
+          </h3>
+          <span className="text-xs text-muted-foreground">{imageUrls.length}/6 uploaded</span>
         </div>
-        <input
-          id="listing-image"
-          name="imageFile"
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(event) => {
-            const files = Array.from(event.target.files ?? []);
-            if (!files.length) return;
-            if (imageUrls.length + files.length > 6) {
-              setUploadError("You can upload up to 6 images.");
-              return;
-            }
-            files.forEach((file) => {
-              if (file.size > 5 * 1024 * 1024) {
-                setUploadError("Max file size is 5MB.");
+
+        <label className="flex flex-col items-center justify-center gap-3 py-8 cursor-pointer rounded-lg border border-border bg-background hover:bg-accent/5 hover:border-accent/30 transition-all group">
+          <div className="rounded-full bg-accent/10 p-3 group-hover:bg-accent/20 transition-colors">
+            {uploading ? (
+              <Loader2 className="h-6 w-6 text-accent animate-spin" />
+            ) : (
+              <ImagePlus className="h-6 w-6 text-accent" />
+            )}
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium text-foreground">
+              {uploading ? "Uploading..." : "Click to upload photos"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB each</p>
+          </div>
+          <input
+            id="listing-image"
+            name="imageFile"
+            type="file"
+            accept="image/*"
+            multiple
+            className="sr-only"
+            onChange={(event) => {
+              const files = Array.from(event.target.files ?? []);
+              if (!files.length) return;
+              if (imageUrls.length + files.length > 6) {
+                setUploadError("You can upload up to 6 images.");
                 return;
               }
-              void handleUpload(file);
-            });
-          }}
-        />
+              files.forEach((file) => {
+                if (file.size > 5 * 1024 * 1024) {
+                  setUploadError("Max file size is 5MB.");
+                  return;
+                }
+                void handleUpload(file);
+              });
+            }}
+          />
+        </label>
+
+        {uploadError && (
+          <div className="flex items-center gap-2 text-sm text-red-600" role="alert">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            {uploadError}
+          </div>
+        )}
+
+        {previewUrls.length > 0 && (
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {previewUrls.map((url) => (
+              <div key={url} className="relative group rounded-lg overflow-hidden border border-border aspect-square">
+                <img src={url} alt="Preview" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(url)}
+                  className="absolute top-1.5 right-1.5 rounded-full bg-black/60 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-      {uploading && <p className="meta">Uploading image…</p>}
-      {uploadError && (
-        <div className="form-error" role="alert">
-          {uploadError}
-        </div>
-      )}
-      {previewUrls.length > 0 && (
-        <div className="upload-preview-grid">
-          {previewUrls.map((url) => (
-            <img key={url} src={url} alt="Listing preview" />
-          ))}
-        </div>
-      )}
-      <SubmitButton label="Create Listing" pendingLabel="Creating…" />
+
+      {/* ── Submit ── */}
+      <button
+        type="submit"
+        className="w-full h-12 rounded-lg bg-accent text-white font-semibold text-sm transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+      >
+        Create Listing
+      </button>
     </form>
   );
 }

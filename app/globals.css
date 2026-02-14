@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --bg: #f4f1ec;
   --panel: #ffffff;
@@ -524,13 +528,18 @@ h1, h2, h3 {
   margin-top: 48px;
 }
 
-form {
+form:not(.space-y-6) {
   display: grid;
   gap: 16px;
   max-width: 640px;
 }
 
-input, textarea, select {
+form:not(.space-y-6) input,
+form:not(.space-y-6) textarea,
+form:not(.space-y-6) select,
+.filter-panel input,
+.filter-panel select,
+.messages-chat-form input {
   width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
@@ -540,13 +549,19 @@ input, textarea, select {
   transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
 
-input:focus, textarea:focus, select:focus {
+form:not(.space-y-6) input:focus,
+form:not(.space-y-6) textarea:focus,
+form:not(.space-y-6) select:focus,
+.filter-panel input:focus,
+.filter-panel select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 4px rgba(232, 101, 43, 0.08);
 }
 
-input:disabled, textarea:disabled, select:disabled {
+form:not(.space-y-6) input:disabled,
+form:not(.space-y-6) textarea:disabled,
+form:not(.space-y-6) select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -651,7 +666,7 @@ input:disabled, textarea:disabled, select:disabled {
   font-weight: 500;
 }
 
-textarea {
+form:not(.space-y-6) textarea {
   min-height: 120px;
 }
 
@@ -1078,17 +1093,20 @@ textarea {
   border-bottom-color: rgba(46, 44, 41, 0.6);
 }
 
-[data-theme="dark"] input,
-[data-theme="dark"] textarea,
-[data-theme="dark"] select {
+[data-theme="dark"] form:not(.space-y-6) input,
+[data-theme="dark"] form:not(.space-y-6) textarea,
+[data-theme="dark"] form:not(.space-y-6) select,
+[data-theme="dark"] .filter-panel input,
+[data-theme="dark"] .filter-panel select,
+[data-theme="dark"] .messages-chat-form input {
   background: #282725;
   color: var(--ink);
   border-color: var(--border);
 }
 
-[data-theme="dark"] input:focus,
-[data-theme="dark"] textarea:focus,
-[data-theme="dark"] select:focus {
+[data-theme="dark"] form:not(.space-y-6) input:focus,
+[data-theme="dark"] form:not(.space-y-6) textarea:focus,
+[data-theme="dark"] form:not(.space-y-6) select:focus {
   box-shadow: 0 0 0 4px rgba(240, 120, 58, 0.12);
 }
 
