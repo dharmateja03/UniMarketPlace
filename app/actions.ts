@@ -68,6 +68,8 @@ export async function createListingAction(_: ActionState, formData: FormData): P
 
   const discountPercent = formData.get("discountPercent") ? Number(formData.get("discountPercent")) : null;
   const saleEndsAt = formData.get("saleEndsAt") ? String(formData.get("saleEndsAt")) : null;
+  const showEmail = formData.get("showEmail") === "true";
+  const showPhone = formData.get("showPhone") === "true";
   const rawPrice = Math.round(Number(formData.get("price") || 0) * 100);
 
   const payload = {
@@ -124,6 +126,8 @@ export async function createListingAction(_: ActionState, formData: FormData): P
         originalPriceCents: discountPercent ? rawPrice : null,
         discountPercent: discountPercent ?? null,
         saleEndsAt: saleEndsAt ? new Date(saleEndsAt) : null,
+        showEmail,
+        showPhone,
         images:
           parsed.data.imageUrls?.length || parsed.data.imageUrl
             ? {
@@ -141,6 +145,27 @@ export async function createListingAction(_: ActionState, formData: FormData): P
 
   revalidatePath("/marketplace");
   redirect("/marketplace/new/success");
+}
+
+// ── Update Phone Number ──
+export async function updatePhone(_: ActionState, formData: FormData): Promise<ActionState> {
+  const phone = String(formData.get("phone") || "").trim();
+  if (phone && (phone.length < 7 || phone.length > 20)) {
+    return { error: "Please enter a valid phone number." };
+  }
+
+  const userId = getCurrentUserId();
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { phone: phone || null },
+    });
+  } catch {
+    return { error: "Failed to update phone number." };
+  }
+
+  revalidatePath("/profile");
+  return { error: null };
 }
 
 // ── Start Conversation ──

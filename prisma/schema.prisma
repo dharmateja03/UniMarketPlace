@@ -41,6 +41,7 @@ model User {
   name            String
   email           String   @unique
   universityEmail String   @unique
+  phone           String?
   imageUrl        String?
   campus          String?
   isVerified      Boolean  @default(false)
@@ -98,6 +99,8 @@ model Listing {
   discountPercent    Int?
   saleEndsAt         DateTime?
   reviewsDisabled    Boolean         @default(false)
+  showEmail          Boolean         @default(false)
+  showPhone          Boolean         @default(false)
   views              ListingView[]
 }
 

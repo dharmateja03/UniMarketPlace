@@ -248,6 +248,18 @@ export default function NewListingForm() {
           </div>
         </fieldset>
       )}
+      <fieldset className="choice-grid">
+        <legend>Contact info (optional)</legend>
+        <p className="meta" style={{ marginBottom: 4 }}>Let buyers reach you directly. Your info from your profile will be shown.</p>
+        <label>
+          <input type="checkbox" name="showEmail" value="true" />
+          Show my email on this listing
+        </label>
+        <label>
+          <input type="checkbox" name="showPhone" value="true" />
+          Show my phone number on this listing
+        </label>
+      </fieldset>
       <label className="sr-only" htmlFor="listing-image">
         Images
       </label>

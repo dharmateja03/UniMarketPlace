@@ -322,6 +322,27 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
               ⭐ {averageRating.toFixed(1)} ({listing.reviews.length} reviews)
             </p>
 
+            {/* Contact info — opt-in by seller */}
+            {(listing.showEmail || listing.showPhone) && listing.userId !== currentUserId && (
+              <div className="seller-contact-info">
+                {listing.showEmail && listing.user.email && (
+                  <a href={`mailto:${listing.user.email}`} className="seller-contact-row">
+                    <span className="seller-contact-icon">✉️</span>
+                    <span>{listing.user.email}</span>
+                  </a>
+                )}
+                {listing.showPhone && listing.user.phone && (
+                  <a href={`tel:${listing.user.phone}`} className="seller-contact-row">
+                    <span className="seller-contact-icon">📱</span>
+                    <span>{listing.user.phone}</span>
+                  </a>
+                )}
+                {listing.showPhone && !listing.user.phone && (
+                  <p className="meta" style={{ fontSize: "0.8rem" }}>Seller hasn&apos;t added a phone number yet.</p>
+                )}
+              </div>
+            )}
+
             {followingWhoTransacted.length > 0 && (
               <div className="social-proof">
                 {followingWhoTransacted.map((f) => f.following.name).join(", ")} bought from this seller

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { getUserBadges } from "@/lib/badges";
 import BadgeList from "@/components/BadgeList";
+import PhoneForm from "@/components/PhoneForm";
 
 function formatPrice(cents: number) {
   if (cents === 0) return "Free";
@@ -217,6 +218,11 @@ export default async function ProfilePage() {
 
         {/* Sidebar */}
         <aside className="profile-sidebar">
+          <div className="panel">
+            <h3>Contact Info</h3>
+            <p className="meta" style={{ marginBottom: 8 }}>Add a phone number so buyers can reach you when you opt in on listings.</p>
+            <PhoneForm currentPhone={user.phone} />
+          </div>
           <div className="panel">
             <h3>Account</h3>
             <nav className="profile-sidebar-nav">
