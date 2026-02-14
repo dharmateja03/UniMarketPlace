@@ -73,19 +73,30 @@ export default async function HomePage() {
 
   return (
     <div>
+      {/* Search Bar — Top */}
+      <form className="home-search" action="/marketplace" method="get">
+        <input
+          name="q"
+          placeholder="Search for textbooks, furniture, bikes..."
+          autoComplete="off"
+          type="search"
+        />
+        <button type="submit">Search</button>
+      </form>
+
       {/* Welcome + Quick Actions */}
       <section className="home-welcome">
-        <h1>Welcome back, {userName}</h1>
-        <p>What&apos;s on campus today?</p>
+        <h1>Welcome, {userName}</h1>
+        <p>What would you like to find today?</p>
 
         <div className="home-actions">
           <Link className="home-action-card" href="/marketplace/new">
             <div className="home-action-icon post">+</div>
             <span>Post Listing</span>
           </Link>
-          <Link className="home-action-card" href="/messages">
-            <div className="home-action-icon messages">💬</div>
-            <span>Messages</span>
+          <Link className="home-action-card" href="/marketplace/bulk">
+            <div className="home-action-icon messages">📦</div>
+            <span>Bulk Upload</span>
           </Link>
           <Link className="home-action-card" href="/saved">
             <div className="home-action-icon saved">♥</div>
@@ -97,17 +108,6 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
-
-      {/* Search */}
-      <form className="home-search" action="/marketplace" method="get">
-        <input
-          name="q"
-          placeholder="Search for textbooks, furniture, bikes..."
-          autoComplete="off"
-          type="search"
-        />
-        <button type="submit">Search</button>
-      </form>
 
       {/* Category Pills */}
       {categoryOptions.length > 0 && (

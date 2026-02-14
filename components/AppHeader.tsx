@@ -33,13 +33,14 @@ export default function AppHeader() {
 
   return (
     <header>
-      <Link href="/">
+      <Link href="/" className="header-logo">
         <strong>UniHub</strong>
       </Link>
       <form className="header-search" action="/marketplace" method="get">
+        <span className="header-search-icon" aria-hidden="true">🔍</span>
         <input
           name="q"
-          placeholder="Search Marketplace"
+          placeholder="Search for textbooks, furniture, bikes..."
           autoComplete="off"
           type="search"
         />
@@ -55,10 +56,16 @@ export default function AppHeader() {
             </span>
           )}
         </Link>
+        <Link href="/notifications" className="header-notif-btn" aria-label="Notifications">
+          <span className="header-notif-icon">🔔</span>
+          {unreadCount > 0 && (
+            <span className="header-notif-badge">{unreadCount}</span>
+          )}
+        </Link>
         <Link href="/profile">Profile</Link>
         <ThemeToggle />
         <Link className="nav-accent" href="/marketplace/new">
-          Post Listing
+          + Sell
         </Link>
       </nav>
     </header>
