@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 
 const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(
   ({ className, children, ...props }, ref) => {
@@ -16,7 +16,7 @@ const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HT
         >
           {children}
         </select>
-        <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <ChevronDownIcon className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
       </div>
     );
   }

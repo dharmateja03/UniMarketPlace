@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { FormCheckbox } from "@/components/ui/checkbox";
 import { FormSwitch } from "@/components/ui/switch";
-import { Upload, ImagePlus, X, AlertCircle, Loader2 } from "lucide-react";
+import { UploadIcon, ImageIcon, Cross2Icon, ExclamationTriangleIcon, UpdateIcon } from "@radix-ui/react-icons";
 
 type FormState = { error: string | null };
 const initialState: FormState = { error: null };
@@ -64,7 +64,7 @@ export default function NewListingForm() {
       {/* Error banner */}
       {state.error && (
         <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 [data-theme='dark']:bg-red-950/30 [data-theme='dark']:border-red-900 [data-theme='dark']:text-red-400" role="alert">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+          <ExclamationTriangleIcon className="h-4 w-4 shrink-0" />
           {state.error}
         </div>
       )}
@@ -303,9 +303,9 @@ export default function NewListingForm() {
         <label className="flex flex-col items-center justify-center gap-3 py-8 cursor-pointer rounded-lg border border-border bg-background hover:bg-accent/5 hover:border-accent/30 transition-all group">
           <div className="rounded-full bg-accent/10 p-3 group-hover:bg-accent/20 transition-colors">
             {uploading ? (
-              <Loader2 className="h-6 w-6 text-accent animate-spin" />
+              <UpdateIcon className="h-6 w-6 text-accent animate-spin" />
             ) : (
-              <ImagePlus className="h-6 w-6 text-accent" />
+              <ImageIcon className="h-6 w-6 text-accent" />
             )}
           </div>
           <div className="text-center">
@@ -341,7 +341,7 @@ export default function NewListingForm() {
 
         {uploadError && (
           <div className="flex items-center gap-2 text-sm text-red-600" role="alert">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+            <ExclamationTriangleIcon className="h-4 w-4 shrink-0" />
             {uploadError}
           </div>
         )}
@@ -356,7 +356,7 @@ export default function NewListingForm() {
                   onClick={() => removeImage(url)}
                   className="absolute top-1.5 right-1.5 rounded-full bg-black/60 p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <Cross2Icon className="h-3.5 w-3.5" />
                 </button>
               </div>
             ))}

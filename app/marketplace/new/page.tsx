@@ -1,6 +1,6 @@
 import Link from "next/link";
 import NewListingForm from "@/components/NewListingForm";
-import { Package, ShieldCheck, TrendingUp, Upload } from "lucide-react";
+import { CubeIcon, LockClosedIcon, RocketIcon, UploadIcon } from "@radix-ui/react-icons";
 
 export default function NewListingPage() {
   return (
@@ -9,7 +9,7 @@ export default function NewListingPage() {
         <div className="panel post-form-card">
           <div className="flex items-center gap-3 mb-1">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-accent/10">
-              <Upload className="w-5 h-5 text-accent" />
+              <UploadIcon className="w-5 h-5 text-accent" />
             </div>
             <div>
               <h1 className="post-form-title" style={{ marginBottom: 0 }}>Post a Listing</h1>
@@ -26,7 +26,7 @@ export default function NewListingPage() {
         <aside className="post-form-sidebar">
           <div className="panel">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-accent" />
+              <RocketIcon className="w-4 h-4 text-accent" />
               <h3 className="text-sm font-semibold">Posting Tips</h3>
             </div>
             <ul className="space-y-2 text-xs text-muted-foreground">
@@ -46,7 +46,7 @@ export default function NewListingPage() {
           </div>
           <div className="panel">
             <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-secondary" />
+              <LockClosedIcon className="w-4 h-4 text-secondary" />
               <h3 className="text-sm font-semibold">Safety</h3>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -55,7 +55,7 @@ export default function NewListingPage() {
           </div>
           <div className="panel">
             <div className="flex items-center gap-2 mb-2">
-              <Package className="w-4 h-4 text-accent" />
+              <CubeIcon className="w-4 h-4 text-accent" />
               <h3 className="text-sm font-semibold">Popular Categories</h3>
             </div>
             <div className="flex flex-wrap gap-1.5">
