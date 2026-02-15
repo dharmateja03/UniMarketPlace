@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { toggleSavedListing } from "@/app/actions";
 import SubmitButton from "@/components/SubmitButton";
+import { Text, Heading, Em, Strong } from "@/components/ui/typography";
 
 function formatPrice(cents: number) {
   if (cents === 0) return "Free";
@@ -24,10 +25,10 @@ export default async function SavedPage() {
     <div>
       <div className="saved-header">
         <div>
-          <h1>Saved Items</h1>
-          <p className="meta" style={{ marginTop: 4 }}>
-            {saved.length} {saved.length === 1 ? "item" : "items"} saved
-          </p>
+          <Heading as="h1" size="7">Saved Items</Heading>
+          <Text as="p" size="2" color="muted" style={{ marginTop: 4 }}>
+            <Strong>{saved.length}</Strong> {saved.length === 1 ? "item" : "items"} saved
+          </Text>
         </div>
         <Link className="button" href="/marketplace">Browse More</Link>
       </div>
@@ -57,8 +58,8 @@ export default async function SavedPage() {
                   <Link href={`/marketplace/${item.listingId}`}>
                     <h3>{listing.title}</h3>
                   </Link>
-                  <p className="meta">📍 {listing.campus}</p>
-                  <p className="saved-card-price">{formatPrice(listing.priceCents)}</p>
+                  <Text as="p" size="1" color="muted">📍 {listing.campus}</Text>
+                  <Text as="p" size="3" weight="bold" color="accent" className="saved-card-price">{formatPrice(listing.priceCents)}</Text>
                   <div className="saved-card-actions">
                     {!isSold && (
                       <Link href={`/marketplace/${item.listingId}`} className="button primary" style={{ flex: 1 }}>
@@ -77,8 +78,8 @@ export default async function SavedPage() {
       ) : (
         <div className="saved-empty">
           <p style={{ fontSize: "2rem", marginBottom: 8 }}>♥</p>
-          <h2>No saved items yet</h2>
-          <p className="meta">Browse the marketplace and save items you like.</p>
+          <Heading as="h2" size="5">No saved items yet</Heading>
+          <Text as="p" size="2" color="muted">Browse the marketplace and <Em>save items you like</Em>.</Text>
           <Link className="button primary" href="/marketplace" style={{ marginTop: 16 }}>
             Browse Marketplace
           </Link>

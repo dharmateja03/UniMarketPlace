@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { sendMessage } from "@/app/actions";
 import SubmitButton from "@/components/SubmitButton";
+import { Text, Heading, Em, Strong } from "@/components/ui/typography";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -71,7 +72,7 @@ export default async function ConversationPage({ params }: { params: { id: strin
       {/* Sidebar */}
       <aside className="messages-sidebar">
         <div className="messages-sidebar-header">
-          <h1>Messages</h1>
+          <Heading as="h1" size="5">Messages</Heading>
           <span className="pill">{conversations.length}</span>
         </div>
         <div className="messages-conv-list">
@@ -92,20 +93,20 @@ export default async function ConversationPage({ params }: { params: { id: strin
                 </div>
                 <div className="messages-conv-preview">
                   <div className="messages-conv-top">
-                    <span className="messages-conv-name">{other?.name ?? "Unknown"}</span>
+                    <Text size="2" weight="medium" className="messages-conv-name">{other?.name ?? "Unknown"}</Text>
                     {lastMsg && (
-                      <span className="messages-conv-time">{timeAgo(lastMsg.createdAt)}</span>
+                      <Text size="1" color="muted" className="messages-conv-time">{timeAgo(lastMsg.createdAt)}</Text>
                     )}
                   </div>
                   {convo.listing && (
                     <div className="messages-conv-listing">
                       {img && <img src={img} alt="" />}
-                      <span>{convo.listing.title}</span>
+                      <Text size="1" color="muted">{convo.listing.title}</Text>
                     </div>
                   )}
-                  <p className="messages-conv-snippet">
-                    {lastMsg?.body ?? "No messages yet"}
-                  </p>
+                  <Text as="p" size="1" color="muted" truncate className="messages-conv-snippet">
+                    {lastMsg?.body ?? <Em>No messages yet</Em>}
+                  </Text>
                 </div>
               </Link>
             );
@@ -122,8 +123,8 @@ export default async function ConversationPage({ params }: { params: { id: strin
               {otherUser?.name?.charAt(0).toUpperCase() ?? "?"}
             </div>
             <div>
-              <h2>{otherUser?.name ?? "Unknown"}</h2>
-              <span className="meta">{otherUser?.universityEmail}</span>
+              <Heading as="h2" size="4">{otherUser?.name ?? "Unknown"}</Heading>
+              <Text size="1" color="muted">{otherUser?.universityEmail}</Text>
             </div>
           </div>
           {conversation.listing && (
@@ -143,7 +144,7 @@ export default async function ConversationPage({ params }: { params: { id: strin
               <div className="chat-bubble-content">
                 <p>{message.body}</p>
               </div>
-              <span className="chat-bubble-time">{formatTime(message.createdAt)}</span>
+              <Text as="span" size="1" color="muted" className="chat-bubble-time">{formatTime(message.createdAt)}</Text>
             </div>
           ))}
         </div>
@@ -175,9 +176,9 @@ export default async function ConversationPage({ params }: { params: { id: strin
             />
           )}
           <div className="messages-context-body">
-            <h3>{conversation.listing.title}</h3>
-            <p className="messages-context-price">{formatPrice(conversation.listing.priceCents)}</p>
-            <p className="meta">📍 {conversation.listing.campus}</p>
+            <Heading as="h3" size="3">{conversation.listing.title}</Heading>
+            <Text as="p" size="4" weight="bold" color="accent" className="messages-context-price">{formatPrice(conversation.listing.priceCents)}</Text>
+            <Text as="p" size="1" color="muted">📍 {conversation.listing.campus}</Text>
             <Link
               href={`/marketplace/${conversation.listing.id}`}
               className="button"
@@ -187,8 +188,8 @@ export default async function ConversationPage({ params }: { params: { id: strin
             </Link>
           </div>
           <div className="messages-safety-tip">
-            <strong>🛡️ Safety Tip</strong>
-            <p className="meta">Meet in a public place on campus. Avoid exchanging money before meeting.</p>
+            <Strong>🛡️ Safety Tip</Strong>
+            <Text as="p" size="1" color="muted">Meet in a <Em>public place on campus</Em>. Avoid exchanging money before meeting.</Text>
           </div>
         </aside>
       )}

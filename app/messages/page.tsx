@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { Text, Heading, Em } from "@/components/ui/typography";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -33,7 +34,7 @@ export default async function MessagesPage() {
       {/* Sidebar: Conversation List */}
       <aside className="messages-sidebar">
         <div className="messages-sidebar-header">
-          <h1>Messages</h1>
+          <Heading as="h1" size="5">Messages</Heading>
           <span className="pill">{conversations.length}</span>
         </div>
 
@@ -50,20 +51,20 @@ export default async function MessagesPage() {
                 </div>
                 <div className="messages-conv-preview">
                   <div className="messages-conv-top">
-                    <span className="messages-conv-name">{otherUser?.name ?? "Unknown"}</span>
+                    <Text size="2" weight="medium" className="messages-conv-name">{otherUser?.name ?? "Unknown"}</Text>
                     {lastMessage && (
-                      <span className="messages-conv-time">{timeAgo(lastMessage.createdAt)}</span>
+                      <Text size="1" color="muted" className="messages-conv-time">{timeAgo(lastMessage.createdAt)}</Text>
                     )}
                   </div>
                   {convo.listing && (
                     <div className="messages-conv-listing">
                       {listingImg && <img src={listingImg} alt="" />}
-                      <span>{convo.listing.title}</span>
+                      <Text size="1" color="muted">{convo.listing.title}</Text>
                     </div>
                   )}
-                  <p className="messages-conv-snippet">
-                    {lastMessage?.body ?? "No messages yet"}
-                  </p>
+                  <Text as="p" size="1" color="muted" truncate className="messages-conv-snippet">
+                    {lastMessage?.body ?? <Em>No messages yet</Em>}
+                  </Text>
                 </div>
               </Link>
             );
@@ -71,7 +72,7 @@ export default async function MessagesPage() {
 
           {!conversations.length && (
             <div className="messages-empty">
-              <p>No conversations yet.</p>
+              <Text as="p" size="2" color="muted">No conversations yet.</Text>
               <Link className="button" href="/marketplace">Browse listings</Link>
             </div>
           )}
@@ -82,8 +83,8 @@ export default async function MessagesPage() {
       <main className="messages-main">
         <div className="messages-main-empty">
           <p style={{ fontSize: "2rem", marginBottom: 8 }}>💬</p>
-          <h2>Select a conversation</h2>
-          <p className="meta">Choose a chat from the left to start messaging.</p>
+          <Heading as="h2" size="5">Select a conversation</Heading>
+          <Text as="p" size="2" color="muted">Choose a chat from the left to start messaging.</Text>
         </div>
       </main>
     </div>

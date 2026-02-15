@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { Text, Heading, Em, Strong } from "@/components/ui/typography";
 
 function formatPrice(cents: number) {
   if (cents === 0) return "Free";
@@ -30,15 +31,15 @@ export default async function BundlePage({ params }: { params: { id: string } })
       <div className="bundle-header">
         <div>
           <span className="bundle-tag">Bundle</span>
-          <h1>{bundle.title}</h1>
-          {bundle.description && <p className="meta" style={{ marginTop: 8 }}>{bundle.description}</p>}
-          <p className="meta">By {bundle.user.name} \u00B7 {bundle.listings.length} items</p>
+          <Heading as="h1" size="7">{bundle.title}</Heading>
+          {bundle.description && <Text as="p" size="2" color="muted" style={{ marginTop: 8 }}><Em>{bundle.description}</Em></Text>}
+          <Text as="p" size="2" color="muted">By <Strong>{bundle.user.name}</Strong> · {bundle.listings.length} items</Text>
         </div>
         <div className="bundle-pricing">
           {bundle.discountPercent > 0 && (
-            <span className="original">{formatPrice(totalCents)}</span>
+            <Text as="span" size="3" color="muted" className="original">{formatPrice(totalCents)}</Text>
           )}
-          <span className="discounted">{formatPrice(discountedCents)}</span>
+          <Text as="span" size="7" weight="bold" color="accent" className="discounted">{formatPrice(discountedCents)}</Text>
           {bundle.discountPercent > 0 && (
             <span className="free-tag">{bundle.discountPercent}% OFF</span>
           )}
@@ -63,8 +64,8 @@ export default async function BundlePage({ params }: { params: { id: string } })
             <div className="card-body">
               <p className="tag">{listing.transactionType}</p>
               <h3>{listing.title}</h3>
-              <p className="price">{formatPrice(listing.priceCents)}</p>
-              <p className="meta">{listing.campus}</p>
+              <Text as="p" size="3" weight="bold" color="accent" className="price">{formatPrice(listing.priceCents)}</Text>
+              <Text as="p" size="1" color="muted">{listing.campus}</Text>
             </div>
           </Link>
         ))}

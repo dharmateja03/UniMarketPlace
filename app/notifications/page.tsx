@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { Text, Heading, Em, Strong } from "@/components/ui/typography";
 
 function timeAgo(date: Date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -96,8 +97,8 @@ export default async function NotificationsPage() {
   return (
     <div className="notif-page">
       <div className="notif-header">
-        <h1>Notifications</h1>
-        <p className="meta">{notifications.length} recent updates</p>
+        <Heading as="h1" size="7">Notifications</Heading>
+        <Text as="p" size="2" color="muted"><Strong>{notifications.length}</Strong> recent updates</Text>
       </div>
 
       {notifications.length > 0 ? (
@@ -106,18 +107,18 @@ export default async function NotificationsPage() {
             <Link key={notif.id} href={notif.href} className="notif-item">
               <span className="notif-icon">{notif.icon}</span>
               <div className="notif-content">
-                <p className="notif-title">{notif.title}</p>
-                <p className="notif-body">{notif.body}</p>
+                <Text as="p" size="2" weight="medium" className="notif-title">{notif.title}</Text>
+                <Text as="p" size="1" color="muted" className="notif-body"><Em>{notif.body}</Em></Text>
               </div>
-              <span className="notif-time">{timeAgo(notif.time)}</span>
+              <Text size="1" color="muted" className="notif-time">{timeAgo(notif.time)}</Text>
             </Link>
           ))}
         </div>
       ) : (
         <div className="notif-empty">
           <p style={{ fontSize: "2rem", marginBottom: 8 }}>🔔</p>
-          <h2>No notifications yet</h2>
-          <p className="meta">When you receive messages, offers, or reviews they will appear here.</p>
+          <Heading as="h2" size="5">No notifications yet</Heading>
+          <Text as="p" size="2" color="muted">When you receive messages, offers, or reviews they will appear here.</Text>
           <Link className="button primary" href="/marketplace" style={{ marginTop: 16 }}>
             Browse Marketplace
           </Link>
