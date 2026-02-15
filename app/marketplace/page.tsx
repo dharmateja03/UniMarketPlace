@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { Text, Heading, Em } from "@/components/ui/typography";
 
 function formatPrice(cents: number) {
   if (cents === 0) return "Free";
@@ -173,10 +174,10 @@ export default async function MarketplacePage({
 
   return (
     <div>
-      <h1>Marketplace</h1>
-      <p style={{ color: "var(--muted)", marginTop: 8 }}>
-        Browse student-only listings. Toggle between Buy & Sell, Rentals, Free Stuff, or Housing.
-      </p>
+      <Heading as="h1" size="8">Marketplace</Heading>
+      <Text as="p" size="3" color="muted" style={{ marginTop: 8 }}>
+        Browse <Em>student-only</Em> listings. Toggle between Buy & Sell, Rentals, Free Stuff, or Housing.
+      </Text>
 
       <div className="marketplace-tabs" style={{ marginTop: 16 }}>
         <Link className={`tab ${type === "all" ? "active" : ""}`} href="/marketplace">
@@ -342,7 +343,7 @@ export default async function MarketplacePage({
             <div className="section-stack">
               {trending.length > 0 && (
                 <div>
-                  <h2 className="section-title">Trending</h2>
+                  <Heading as="h2" size="5" className="section-title">Trending</Heading>
                   <div className="card-grid">
                     {trending.slice(0, 4).map((item) => {
                       const imageUrl = item.images[0]?.url;
@@ -366,7 +367,7 @@ export default async function MarketplacePage({
               )}
 
               <div>
-                <h2 className="section-title">Today&apos;s Picks</h2>
+                <Heading as="h2" size="5" className="section-title">Today&apos;s Picks</Heading>
                 <div className="card-grid">
                   {todayPicks.map(cardFor)}
                   {!todayPicks.length && (
@@ -378,7 +379,7 @@ export default async function MarketplacePage({
               </div>
 
               <div>
-                <h2 className="section-title">Near You \u00B7 {primaryCampus}</h2>
+                <Heading as="h2" size="5" className="section-title">Near You \u00B7 {primaryCampus}</Heading>
                 <div className="card-grid">
                   {nearYou.map(cardFor)}
                   {!nearYou.length && (
@@ -391,7 +392,7 @@ export default async function MarketplacePage({
 
               {freeStuff.length > 0 && (
                 <div>
-                  <h2 className="section-title">Free Stuff</h2>
+                  <Heading as="h2" size="5" className="section-title">Free Stuff</Heading>
                   <div className="card-grid">
                     {freeStuff.map(cardFor)}
                   </div>
@@ -399,7 +400,7 @@ export default async function MarketplacePage({
               )}
 
               <div>
-                <h2 className="section-title">Buy & Sell</h2>
+                <Heading as="h2" size="5" className="section-title">Buy & Sell</Heading>
                 <div className="card-grid">
                   {buySell.map(cardFor)}
                   {!buySell.length && (
@@ -411,7 +412,7 @@ export default async function MarketplacePage({
               </div>
 
               <div>
-                <h2 className="section-title">Rentals</h2>
+                <Heading as="h2" size="5" className="section-title">Rentals</Heading>
                 <div className="card-grid">
                   {rentals.map(cardFor)}
                   {!rentals.length && (
@@ -426,7 +427,7 @@ export default async function MarketplacePage({
 
           {type === "TRENDING" && (
             <div>
-              <h2 className="section-title">Trending</h2>
+              <Heading as="h2" size="5" className="section-title">Trending</Heading>
               <div className="card-grid">
                 {trending.map((item) => {
                   const imageUrl = item.images[0]?.url;
@@ -456,9 +457,9 @@ export default async function MarketplacePage({
 
           {type !== "all" && type !== "TRENDING" && (
             <div>
-              <h2 className="section-title">
+              <Heading as="h2" size="5" className="section-title">
                 {type === "SELL" ? "Buy & Sell" : type === "RENT" ? "Rentals" : type === "FREE" ? "Free Stuff" : "Housing"}
-              </h2>
+              </Heading>
               <div className="card-grid">
                 {listings.map(cardFor)}
                 {!listings.length && (

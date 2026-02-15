@@ -7,6 +7,7 @@ import ShareButton from "@/components/ShareButton";
 import BadgeList from "@/components/BadgeList";
 import FollowButton from "@/components/FollowButton";
 import { getUserBadges } from "@/lib/badges";
+import { Text, Heading, Em, Strong } from "@/components/ui/typography";
 
 function formatPrice(cents: number) {
   if (cents === 0) return "Free";
@@ -190,34 +191,34 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
 
           {/* Description */}
           <div className="detail-section">
-            <h2>Description</h2>
-            <p>{listing.description}</p>
+            <Heading as="h2" size="4">Description</Heading>
+            <Text as="p" size="2">{listing.description}</Text>
           </div>
 
           {/* Details grid */}
           <div className="detail-section">
-            <h2>Details</h2>
+            <Heading as="h2" size="4">Details</Heading>
             <div className="detail-info-grid">
               <div className="detail-info-item">
-                <span className="detail-info-label">Condition</span>
-                <span>{listing.condition}</span>
+                <Text size="1" weight="medium" color="muted" className="detail-info-label">Condition</Text>
+                <Text size="2">{listing.condition}</Text>
               </div>
               <div className="detail-info-item">
-                <span className="detail-info-label">Category</span>
-                <span>{listing.category}</span>
+                <Text size="1" weight="medium" color="muted" className="detail-info-label">Category</Text>
+                <Text size="2">{listing.category}</Text>
               </div>
               <div className="detail-info-item">
-                <span className="detail-info-label">Status</span>
-                <span>{formatStatus(listing.status)}</span>
+                <Text size="1" weight="medium" color="muted" className="detail-info-label">Status</Text>
+                <Text size="2">{formatStatus(listing.status)}</Text>
               </div>
               <div className="detail-info-item">
-                <span className="detail-info-label">Views</span>
-                <span>{listing.viewCount}</span>
+                <Text size="1" weight="medium" color="muted" className="detail-info-label">Views</Text>
+                <Text size="2">{listing.viewCount}</Text>
               </div>
               {listing.rentalPeriodDays && (
                 <div className="detail-info-item">
-                  <span className="detail-info-label">Rental Period</span>
-                  <span>{listing.rentalPeriodDays} days</span>
+                  <Text size="1" weight="medium" color="muted" className="detail-info-label">Rental Period</Text>
+                  <Text size="2">{listing.rentalPeriodDays} days</Text>
                 </div>
               )}
             </div>
@@ -227,12 +228,12 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           <div className="detail-section">
             <div className="detail-info-grid">
               <div className="detail-info-item">
-                <span className="detail-info-label">📍 Meetup Location</span>
-                <span>{listing.campus}</span>
+                <Text size="1" weight="medium" color="muted" className="detail-info-label">📍 Meetup Location</Text>
+                <Text size="2">{listing.campus}</Text>
               </div>
               <div className="detail-info-item">
-                <span className="detail-info-label">📦 Delivery</span>
-                <span>{listing.deliveryOptions.length ? listing.deliveryOptions.map(formatDelivery).join(", ") : "Meet on campus"}</span>
+                <Text size="1" weight="medium" color="muted" className="detail-info-label">📦 Delivery</Text>
+                <Text size="2">{listing.deliveryOptions.length ? listing.deliveryOptions.map(formatDelivery).join(", ") : "Meet on campus"}</Text>
               </div>
             </div>
           </div>
@@ -240,29 +241,29 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           {/* Housing details */}
           {(listing.moveInDate || listing.moveOutDate || listing.furnished !== null || listing.roommates !== null || listing.petsAllowed) && (
             <div className="detail-section">
-              <h2>Housing Details</h2>
+              <Heading as="h2" size="4">Housing Details</Heading>
               <div className="detail-info-grid">
-                {listing.moveInDate && <div className="detail-info-item"><span className="detail-info-label">Move in</span><span>{formatDate(listing.moveInDate)}</span></div>}
-                {listing.moveOutDate && <div className="detail-info-item"><span className="detail-info-label">Move out</span><span>{formatDate(listing.moveOutDate)}</span></div>}
-                {listing.furnished !== null && <div className="detail-info-item"><span className="detail-info-label">Furnished</span><span>{listing.furnished ? "Yes" : "No"}</span></div>}
-                {listing.roommates !== null && <div className="detail-info-item"><span className="detail-info-label">Roommates</span><span>{listing.roommates}</span></div>}
-                {listing.petsAllowed && <div className="detail-info-item"><span className="detail-info-label">Pets</span><span>Allowed</span></div>}
+                {listing.moveInDate && <div className="detail-info-item"><Text size="1" weight="medium" color="muted" className="detail-info-label">Move in</Text><Text size="2">{formatDate(listing.moveInDate)}</Text></div>}
+                {listing.moveOutDate && <div className="detail-info-item"><Text size="1" weight="medium" color="muted" className="detail-info-label">Move out</Text><Text size="2">{formatDate(listing.moveOutDate)}</Text></div>}
+                {listing.furnished !== null && <div className="detail-info-item"><Text size="1" weight="medium" color="muted" className="detail-info-label">Furnished</Text><Text size="2">{listing.furnished ? "Yes" : "No"}</Text></div>}
+                {listing.roommates !== null && <div className="detail-info-item"><Text size="1" weight="medium" color="muted" className="detail-info-label">Roommates</Text><Text size="2">{listing.roommates}</Text></div>}
+                {listing.petsAllowed && <div className="detail-info-item"><Text size="1" weight="medium" color="muted" className="detail-info-label">Pets</Text><Text size="2">Allowed</Text></div>}
               </div>
             </div>
           )}
 
           {/* Safety tip */}
           <div className="detail-safety-tip">
-            <strong>🛡️ Safety Tip:</strong> Always meet in a public place on campus. Avoid exchanging money before meeting.
+            <Strong>🛡️ Safety Tip:</Strong> Always meet in a <Em>public place on campus</Em>. Avoid exchanging money before meeting.
           </div>
         </div>
 
         {/* Right: Info panel */}
         <div className="detail-sidebar">
           <div className="panel">
-            <h1 className="detail-title">{listing.title}</h1>
+            <Heading as="h1" size="6" className="detail-title">{listing.title}</Heading>
             <div className="detail-price-row">
-              <p className="detail-price">{formatPrice(listing.priceCents)}</p>
+              <Text as="p" size="8" weight="bold" color="accent" className="detail-price">{formatPrice(listing.priceCents)}</Text>
               {listing.originalPriceCents && listing.originalPriceCents > listing.priceCents && (
                 <span className="detail-original-price">{formatPrice(listing.originalPriceCents)}</span>
               )}
@@ -276,7 +277,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                 Sale ends {formatDate(listing.saleEndsAt)}
               </div>
             )}
-            <p className="meta" style={{ marginTop: 8 }}>Listed {timeAgo(listing.createdAt)}</p>
+            <Text as="p" size="1" color="muted" style={{ marginTop: 8 }}>Listed <Em>{timeAgo(listing.createdAt)}</Em></Text>
 
             {listing.flairs.length > 0 && (
               <div className="flair-list" style={{ marginTop: 10 }}>
@@ -313,14 +314,14 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                 {listing.user.name?.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="detail-seller-name">{listing.user.name}</p>
-                <p className="meta">{listing.user.universityEmail}</p>
+                <Text as="p" size="3" weight="medium" className="detail-seller-name">{listing.user.name}</Text>
+                <Text as="p" size="1" color="muted">{listing.user.universityEmail}</Text>
                 <BadgeList badges={sellerBadges} />
               </div>
             </div>
-            <p className="meta" style={{ marginTop: 8 }}>
-              ⭐ {averageRating.toFixed(1)} ({listing.reviews.length} reviews)
-            </p>
+            <Text as="p" size="2" color="muted" style={{ marginTop: 8 }}>
+              ⭐ <Strong>{averageRating.toFixed(1)}</Strong> <Em>({listing.reviews.length} reviews)</Em>
+            </Text>
 
             {/* Contact info — opt-in by seller */}
             {(listing.showEmail || listing.showPhone) && listing.userId !== currentUserId && (
@@ -338,7 +339,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
                   </a>
                 )}
                 {listing.showPhone && !listing.user.phone && (
-                  <p className="meta" style={{ fontSize: "0.8rem" }}>Seller hasn&apos;t added a phone number yet.</p>
+                  <Text as="p" size="1" color="muted"><Em>Seller hasn&apos;t added a phone number yet.</Em></Text>
                 )}
               </div>
             )}
@@ -358,7 +359,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
 
             {listing.userId === currentUserId && (
               <>
-                <p className="meta" style={{ marginTop: 8 }}>This is your listing.</p>
+                <Text as="p" size="2" color="muted" style={{ marginTop: 8 }}><Em>This is your listing.</Em></Text>
                 <form action={toggleReviewsDisabled.bind(null, listing.id)} style={{ marginTop: 8 }}>
                   <SubmitButton
                     label={listing.reviewsDisabled ? "Enable Reviews" : "Disable Reviews"}
@@ -374,7 +375,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
             <div className="panel">
               <form action={markAsSoldAction}>
                 <input type="hidden" name="listingId" value={listing.id} />
-                <h3>Mark as Sold</h3>
+                <Heading as="h3" size="3">Mark as Sold</Heading>
                 <label className="sr-only" htmlFor="buyer-select">Select buyer</label>
                 <select id="buyer-select" name="buyerId">
                   {uniqueBuyers.map((buyer) => (
@@ -486,33 +487,33 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
 
       {/* Reviews */}
       <div className="detail-section" style={{ marginTop: 32 }}>
-        <h2>Reviews</h2>
+        <Heading as="h2" size="5">Reviews</Heading>
         {listing.reviewsDisabled ? (
-          <p className="meta">Reviews are disabled for this listing.</p>
+          <Text as="p" size="2" color="muted"><Em>Reviews are disabled for this listing.</Em></Text>
         ) : (
           <>
             <div className="review-list">
               {listing.reviews.map((review) => (
                 <div className="panel" key={review.id}>
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <p className="tag">⭐ {review.rating}/5</p>
+                    <Text size="1" className="tag">⭐ {review.rating}/5</Text>
                     {review.role && (
                       <span className="user-badge verified">{review.role === "BUYER" ? "Buyer" : "Seller"}</span>
                     )}
                   </div>
-                  <p style={{ fontWeight: 600 }}>{review.reviewer.name}</p>
-                  {review.comment && <p className="meta">{review.comment}</p>}
+                  <Text as="p" size="2" weight="medium">{review.reviewer.name}</Text>
+                  {review.comment && <Text as="p" size="2" color="muted"><Em>{review.comment}</Em></Text>}
                 </div>
               ))}
               {!listing.reviews.length && (
-                <p className="meta">No reviews yet.</p>
+                <Text as="p" size="2" color="muted"><Em>No reviews yet.</Em></Text>
               )}
             </div>
 
             {userTransaction && !existingReview && (
               <form action={createMutualReview} className="panel" style={{ marginTop: 16 }}>
                 <input type="hidden" name="transactionId" value={userTransaction.id} />
-                <h3>Review this transaction</h3>
+                <Heading as="h3" size="3">Review this transaction</Heading>
                 <select name="rating" defaultValue="5">
                   <option value="5">5 - Excellent</option>
                   <option value="4">4 - Good</option>
@@ -546,7 +547,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
 
       {/* Similar Items */}
       <div className="home-section-header" style={{ marginTop: 40 }}>
-        <h2>Similar Items on Campus</h2>
+        <Heading as="h2" size="5">Similar Items on Campus</Heading>
         <Link href={`/marketplace?category=${encodeURIComponent(listing.category)}`}>See all →</Link>
       </div>
       <div className="home-grid-4">

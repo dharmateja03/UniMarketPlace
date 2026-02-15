@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
+import { Text, Heading, Em, Strong } from "@/components/ui/typography";
 
 function formatPrice(cents: number) {
   if (cents === 0) return "Free";
@@ -86,8 +87,8 @@ export default async function HomePage() {
 
       {/* Welcome + Quick Actions */}
       <section className="home-welcome">
-        <h1>Welcome, {userName}</h1>
-        <p>What would you like to find today?</p>
+        <h1>Welcome, <Em>{userName}</Em></h1>
+        <Text as="p" size="4" color="muted">What would you like to find today?</Text>
 
         <div className="home-actions">
           <Link className="home-action-card" href="/marketplace/new">
@@ -131,7 +132,7 @@ export default async function HomePage() {
       {trending.length > 0 && (
         <section>
           <div className="home-section-header">
-            <h2>🔥 Trending Now</h2>
+            <Heading as="h2" size="5">🔥 Trending Now</Heading>
             <Link href="/marketplace?type=TRENDING">See all →</Link>
           </div>
           <div className="home-grid-6">
@@ -160,7 +161,7 @@ export default async function HomePage() {
       {recent.length > 0 && (
         <section>
           <div className="home-section-header">
-            <h2>🕐 Recently Listed</h2>
+            <Heading as="h2" size="5">🕐 Recently Listed</Heading>
             <Link href="/marketplace">See all →</Link>
           </div>
           <div className="home-grid-4">
@@ -189,12 +190,12 @@ export default async function HomePage() {
       {nearYou.length > 0 && (
         <section>
           <div className="home-section-header">
-            <h2>📍 Near You</h2>
+            <Heading as="h2" size="5">📍 Near You</Heading>
             <Link href={`/marketplace?campus=${encodeURIComponent(campus)}`}>See all →</Link>
           </div>
-          <p className="meta" style={{ marginTop: -8, marginBottom: 12 }}>
-            Items near <strong>{campus}</strong>
-          </p>
+          <Text as="p" size="2" color="muted" style={{ marginTop: -8, marginBottom: 12 }}>
+            Items near <Strong>{campus}</Strong>
+          </Text>
           <div className="home-grid-6">
             {nearYou.map((item) => {
               const img = item.images[0]?.url;
@@ -221,7 +222,7 @@ export default async function HomePage() {
       {freeStuff.length > 0 && (
         <section className="home-free-section">
           <div className="home-section-header" style={{ marginTop: 0 }}>
-            <h2>🎁 Free Stuff</h2>
+            <Heading as="h2" size="5">🎁 Free Stuff</Heading>
             <Link href="/marketplace?type=FREE">View all →</Link>
           </div>
           <div className="home-free-grid">

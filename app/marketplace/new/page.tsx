@@ -1,6 +1,7 @@
 import Link from "next/link";
 import NewListingForm from "@/components/NewListingForm";
 import { CubeIcon, LockClosedIcon, RocketIcon, UploadIcon } from "@radix-ui/react-icons";
+import { Text, Heading, Em, Strong } from "@/components/ui/typography";
 
 export default function NewListingPage() {
   return (
@@ -12,51 +13,51 @@ export default function NewListingPage() {
               <UploadIcon className="w-5 h-5 text-accent" />
             </div>
             <div>
-              <h1 className="post-form-title" style={{ marginBottom: 0 }}>Post a Listing</h1>
+              <Heading as="h1" size="6" className="post-form-title" style={{ marginBottom: 0 }}>Post a Listing</Heading>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground mb-6">
+          <Text as="p" size="2" color="muted" className="mb-6">
             Fill in the details below to list your item on campus.{" "}
             <Link href="/marketplace/bulk" className="text-accent font-semibold hover:underline">
-              Moving out? Bulk upload &rarr;
+              <Em>Moving out? Bulk upload &rarr;</Em>
             </Link>
-          </p>
+          </Text>
           <NewListingForm />
         </div>
         <aside className="post-form-sidebar">
           <div className="panel">
             <div className="flex items-center gap-2 mb-2">
               <RocketIcon className="w-4 h-4 text-accent" />
-              <h3 className="text-sm font-semibold">Posting Tips</h3>
+              <Heading as="h3" size="2" weight="medium">Posting Tips</Heading>
             </div>
             <ul className="space-y-2 text-xs text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-accent">1.</span>
-                Use 3-6 clear photos — listings with photos sell 4x faster
+                <Text size="1" color="accent" className="mt-0.5"><Strong>1.</Strong></Text>
+                <Text size="1" color="muted">Use <Strong>3-6 clear photos</Strong> — listings with photos sell <Em>4x faster</Em></Text>
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-accent">2.</span>
-                Set a fair price based on similar campus listings
+                <Text size="1" color="accent" className="mt-0.5"><Strong>2.</Strong></Text>
+                <Text size="1" color="muted">Set a <Em>fair price</Em> based on similar campus listings</Text>
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 text-accent">3.</span>
-                Add pickup details and respond within 24h
+                <Text size="1" color="accent" className="mt-0.5"><Strong>3.</Strong></Text>
+                <Text size="1" color="muted">Add pickup details and respond within <Strong>24h</Strong></Text>
               </li>
             </ul>
           </div>
           <div className="panel">
             <div className="flex items-center gap-2 mb-2">
               <LockClosedIcon className="w-4 h-4 text-secondary" />
-              <h3 className="text-sm font-semibold">Safety</h3>
+              <Heading as="h3" size="2" weight="medium">Safety</Heading>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Meet in public campus spots and keep communication inside UniHub when possible.
-            </p>
+            <Text as="p" size="1" color="muted">
+              Meet in <Em>public campus spots</Em> and keep communication inside UniHub when possible.
+            </Text>
           </div>
           <div className="panel">
             <div className="flex items-center gap-2 mb-2">
               <CubeIcon className="w-4 h-4 text-accent" />
-              <h3 className="text-sm font-semibold">Popular Categories</h3>
+              <Heading as="h3" size="2" weight="medium">Popular Categories</Heading>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {["Electronics", "Books", "Furniture", "Housing", "Clothing", "Bikes"].map((cat) => (

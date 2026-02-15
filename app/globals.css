@@ -152,6 +152,81 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── Radix Typography Primitives ── */
+
+.rt-Text {
+  font-family: var(--font-body), "Segoe UI", sans-serif;
+}
+
+.rt-Heading {
+  font-family: var(--font-display), serif;
+  font-weight: var(--font-weight-bold);
+  text-wrap: balance;
+}
+
+.rt-Em {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-style: italic;
+  letter-spacing: -0.025em;
+}
+
+.rt-Strong {
+  font-weight: var(--font-weight-bold);
+}
+
+.rt-Code {
+  font-family: "Menlo", "Consolas", "Bitstream Vera Sans Mono", monospace;
+  background: var(--gray-3);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Size scale */
+.rt-r-size-1 { font-size: var(--font-size-1); line-height: var(--line-height-1); letter-spacing: var(--letter-spacing-1); }
+.rt-r-size-2 { font-size: var(--font-size-2); line-height: var(--line-height-2); letter-spacing: var(--letter-spacing-2); }
+.rt-r-size-3 { font-size: var(--font-size-3); line-height: var(--line-height-3); letter-spacing: var(--letter-spacing-3); }
+.rt-r-size-4 { font-size: var(--font-size-4); line-height: var(--line-height-4); letter-spacing: var(--letter-spacing-4); }
+.rt-r-size-5 { font-size: var(--font-size-5); line-height: var(--line-height-5); letter-spacing: var(--letter-spacing-5); }
+.rt-r-size-6 { font-size: var(--font-size-6); line-height: var(--line-height-6); letter-spacing: var(--letter-spacing-6); }
+.rt-r-size-7 { font-size: var(--font-size-7); line-height: var(--line-height-7); letter-spacing: var(--letter-spacing-7); }
+.rt-r-size-8 { font-size: var(--font-size-8); line-height: var(--line-height-8); letter-spacing: var(--letter-spacing-8); }
+.rt-r-size-9 { font-size: var(--font-size-9); line-height: var(--line-height-9); letter-spacing: var(--letter-spacing-9); }
+
+/* Heading tighter line-heights */
+.rt-Heading.rt-r-size-1 { line-height: 14px; }
+.rt-Heading.rt-r-size-2 { line-height: 18px; }
+.rt-Heading.rt-r-size-3 { line-height: 22px; }
+.rt-Heading.rt-r-size-4 { line-height: 24px; }
+.rt-Heading.rt-r-size-5 { line-height: 26px; }
+.rt-Heading.rt-r-size-6 { line-height: 28px; }
+.rt-Heading.rt-r-size-7 { line-height: 32px; }
+.rt-Heading.rt-r-size-8 { line-height: 38px; }
+.rt-Heading.rt-r-size-9 { line-height: 56px; }
+
+/* Weight */
+.rt-r-weight-light { font-weight: var(--font-weight-light); }
+.rt-r-weight-regular { font-weight: var(--font-weight-regular); }
+.rt-r-weight-medium { font-weight: var(--font-weight-medium); }
+.rt-r-weight-bold { font-weight: var(--font-weight-bold); }
+
+/* Alignment */
+.rt-r-align-left { text-align: left; }
+.rt-r-align-center { text-align: center; }
+.rt-r-align-right { text-align: right; }
+
+/* Color */
+.rt-r-color-accent { color: var(--accent); }
+.rt-r-color-muted { color: var(--muted); }
+.rt-r-color-accent-2 { color: var(--accent-2); }
+.rt-r-color-inherit { color: inherit; }
+
+/* High contrast */
+.rt-high-contrast { color: var(--gray-12); }
+
+/* Truncate */
+.rt-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 /* Entrance animation */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }

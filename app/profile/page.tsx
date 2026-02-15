@@ -4,6 +4,7 @@ import { getCurrentUserId } from "@/lib/auth";
 import { getUserBadges } from "@/lib/badges";
 import BadgeList from "@/components/BadgeList";
 import PhoneForm from "@/components/PhoneForm";
+import { Text, Heading, Em, Strong } from "@/components/ui/typography";
 
 function formatPrice(cents: number) {
   if (cents === 0) return "Free";
@@ -77,13 +78,13 @@ export default async function ProfilePage() {
               )}
             </div>
             <div>
-              <h1 className="profile-name">{user.name}</h1>
-              <p className="meta">{user.universityEmail}</p>
+              <Heading as="h1" size="7" className="profile-name">{user.name}</Heading>
+              <Text as="p" size="2" color="muted">{user.universityEmail}</Text>
               <BadgeList badges={badges} />
               <div className="profile-meta-row">
-                <span>⭐ {averageRating.toFixed(1)} ({user.reviewsReceived.length} reviews)</span>
-                <span>{followersCount} followers</span>
-                <span>{followingCount} following</span>
+                <Text size="2">⭐ <Strong>{averageRating.toFixed(1)}</Strong> <Em>({user.reviewsReceived.length} reviews)</Em></Text>
+                <Text size="2"><Strong>{followersCount}</Strong> followers</Text>
+                <Text size="2"><Strong>{followingCount}</Strong> following</Text>
               </div>
             </div>
           </div>
@@ -96,20 +97,20 @@ export default async function ProfilePage() {
         {/* Stats Row */}
         <div className="profile-stats-row">
           <div className="profile-stat">
-            <span className="profile-stat-value">{activeListings.length}</span>
-            <span className="profile-stat-label">Active</span>
+            <Text size="5" weight="bold" className="profile-stat-value">{activeListings.length}</Text>
+            <Text size="1" weight="medium" color="muted" className="profile-stat-label">Active</Text>
           </div>
           <div className="profile-stat">
-            <span className="profile-stat-value">{salesCount}</span>
-            <span className="profile-stat-label">Sales</span>
+            <Text size="5" weight="bold" className="profile-stat-value">{salesCount}</Text>
+            <Text size="1" weight="medium" color="muted" className="profile-stat-label">Sales</Text>
           </div>
           <div className="profile-stat">
-            <span className="profile-stat-value">{purchasesCount}</span>
-            <span className="profile-stat-label">Purchases</span>
+            <Text size="5" weight="bold" className="profile-stat-value">{purchasesCount}</Text>
+            <Text size="1" weight="medium" color="muted" className="profile-stat-label">Purchases</Text>
           </div>
           <div className="profile-stat">
-            <span className="profile-stat-value">{savedCount}</span>
-            <span className="profile-stat-label">Saved</span>
+            <Text size="5" weight="bold" className="profile-stat-value">{savedCount}</Text>
+            <Text size="1" weight="medium" color="muted" className="profile-stat-label">Saved</Text>
           </div>
         </div>
       </div>
@@ -120,7 +121,7 @@ export default async function ProfilePage() {
           {/* Active Listings */}
           <div className="detail-section">
             <div className="home-section-header" style={{ marginTop: 0 }}>
-              <h2>Active Listings</h2>
+              <Heading as="h2" size="5">Active Listings</Heading>
               <span className="pill">{activeListings.length}</span>
             </div>
             {activeListings.length > 0 ? (
@@ -141,14 +142,14 @@ export default async function ProfilePage() {
                 ))}
               </div>
             ) : (
-              <p className="meta">No active listings. <Link href="/marketplace/new" style={{ color: "var(--accent)" }}>Post one now</Link></p>
+              <Text as="p" size="2" color="muted">No active listings. <Link href="/marketplace/new" style={{ color: "var(--accent)" }}><Em>Post one now</Em></Link></Text>
             )}
           </div>
 
           {/* Sold Items */}
           {soldListings.length > 0 && (
             <div className="detail-section">
-              <h2>Sold Items</h2>
+              <Heading as="h2" size="5">Sold Items</Heading>
               <div className="profile-sold-list">
                 {soldListings.map((listing) => (
                   <Link key={listing.id} className="profile-sold-item" href={`/marketplace/${listing.id}`}>
@@ -158,8 +159,8 @@ export default async function ProfilePage() {
                       <div className="profile-sold-placeholder" aria-hidden="true" />
                     )}
                     <div>
-                      <p style={{ fontWeight: 600 }}>{listing.title}</p>
-                      <p className="meta">{formatPrice(listing.priceCents)}</p>
+                      <Text as="p" size="2" weight="medium">{listing.title}</Text>
+                      <Text as="p" size="1" color="muted">{formatPrice(listing.priceCents)}</Text>
                     </div>
                     <span className="pill">Sold</span>
                   </Link>
@@ -171,7 +172,7 @@ export default async function ProfilePage() {
           {/* Bundles */}
           {user.bundles.length > 0 && (
             <div className="detail-section">
-              <h2>Your Bundles</h2>
+              <Heading as="h2" size="5">Your Bundles</Heading>
               <div className="profile-listing-grid">
                 {user.bundles.map((bundle) => (
                   <Link className="card card-hover" key={bundle.id} href={`/bundles/${bundle.id}`}>
@@ -192,21 +193,21 @@ export default async function ProfilePage() {
           {/* Transaction History */}
           {recentTransactions.length > 0 && (
             <div className="detail-section">
-              <h2>Transaction History</h2>
+              <Heading as="h2" size="5">Transaction History</Heading>
               <div className="profile-tx-list">
                 {recentTransactions.map((tx) => {
                   const isSeller = tx.sellerId === userId;
                   return (
                     <Link key={tx.id} className="profile-tx-item" href={`/marketplace/${tx.listingId}`}>
                       <div>
-                        <p style={{ fontWeight: 600 }}>{tx.listing.title}</p>
-                        <p className="meta">
-                          {isSeller ? `Sold to ${tx.buyer.name}` : `Bought from ${tx.seller.name}`}
-                        </p>
+                        <Text as="p" size="2" weight="medium">{tx.listing.title}</Text>
+                        <Text as="p" size="1" color="muted">
+                          {isSeller ? <>Sold to <Em>{tx.buyer.name}</Em></> : <>Bought from <Em>{tx.seller.name}</Em></>}
+                        </Text>
                       </div>
                       <div style={{ textAlign: "right" }}>
-                        <p className="price">{formatPrice(tx.priceCents)}</p>
-                        <p className="meta">{formatDate(tx.completedAt)}</p>
+                        <Text as="p" size="3" weight="bold" color="accent">{formatPrice(tx.priceCents)}</Text>
+                        <Text as="p" size="1" color="muted">{formatDate(tx.completedAt)}</Text>
                       </div>
                     </Link>
                   );
@@ -219,12 +220,12 @@ export default async function ProfilePage() {
         {/* Sidebar */}
         <aside className="profile-sidebar">
           <div className="panel">
-            <h3>Contact Info</h3>
-            <p className="meta" style={{ marginBottom: 8 }}>Add a phone number so buyers can reach you when you opt in on listings.</p>
+            <Heading as="h3" size="3">Contact Info</Heading>
+            <Text as="p" size="2" color="muted" style={{ marginBottom: 8 }}><Em>Add a phone number</Em> so buyers can reach you when you opt in on listings.</Text>
             <PhoneForm currentPhone={user.phone} />
           </div>
           <div className="panel">
-            <h3>Account</h3>
+            <Heading as="h3" size="3">Account</Heading>
             <nav className="profile-sidebar-nav">
               <Link href="/saved">♥ Saved Items</Link>
               <Link href="/messages">💬 Messages</Link>
@@ -232,16 +233,16 @@ export default async function ProfilePage() {
             </nav>
           </div>
           <div className="panel">
-            <h3>Boost your sales</h3>
-            <p className="meta">
-              Listings with 3+ photos sell 40% faster. Add clear images and respond within 24 hours.
-            </p>
+            <Heading as="h3" size="3">Boost your sales</Heading>
+            <Text as="p" size="2" color="muted">
+              Listings with <Strong>3+ photos</Strong> sell <Em>40% faster</Em>. Add clear images and respond within 24 hours.
+            </Text>
           </div>
           <div className="panel">
-            <h3>Safety</h3>
-            <p className="meta">
-              Meet in well-lit campus locations and keep communication in UniHub chat.
-            </p>
+            <Heading as="h3" size="3">Safety</Heading>
+            <Text as="p" size="2" color="muted">
+              Meet in <Em>well-lit campus locations</Em> and keep communication in UniHub chat.
+            </Text>
           </div>
         </aside>
       </div>
