@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { toggleSavedListing } from "@/app/actions";
@@ -42,10 +43,12 @@ export default async function SavedPage() {
               <div key={item.id} className={`saved-card${isSold ? " saved-card-sold" : ""}`}>
                 <Link href={`/marketplace/${item.listingId}`} className="saved-card-image-link">
                   {listing.images[0]?.url ? (
-                    <img
+                    <Image
                       src={listing.images[0].url}
                       alt={listing.title}
-                      loading="lazy"
+                      width={400}
+                      height={300}
+                      sizes="(max-width: 768px) 100vw, 300px"
                     />
                   ) : (
                     <div className="saved-card-placeholder" aria-hidden="true" />

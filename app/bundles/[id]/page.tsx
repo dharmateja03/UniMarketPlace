@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { Text, Heading, Em, Strong } from "@/components/ui/typography";
 
@@ -50,13 +51,13 @@ export default async function BundlePage({ params }: { params: { id: string } })
         {bundle.listings.map((listing) => (
           <Link key={listing.id} className="card card-hover" href={`/marketplace/${listing.id}`}>
             {listing.images[0]?.url ? (
-              <img
+              <Image
                 className="card-image"
                 src={listing.images[0].url}
                 alt={listing.title}
                 width={400}
                 height={180}
-                loading="lazy"
+                sizes="(max-width: 768px) 50vw, 25vw"
               />
             ) : (
               <div className="card-image placeholder" aria-hidden="true" />

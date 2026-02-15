@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { Text, Heading, Em, Strong } from "@/components/ui/typography";
@@ -130,7 +131,7 @@ export default async function HomePage() {
               return (
                 <Link key={item.id} className="card card-hover" href={`/marketplace/${item.id}`}>
                   {img ? (
-                    <img className="card-image" src={img} alt={item.title} loading="lazy" width={400} height={400} />
+                    <Image className="card-image" src={img} alt={item.title} width={400} height={400} sizes="(max-width: 768px) 50vw, 16vw" />
                   ) : (
                     <div className="card-image placeholder" aria-hidden="true" />
                   )}
@@ -159,7 +160,7 @@ export default async function HomePage() {
               return (
                 <Link key={item.id} className="card card-hover home-card-rect" href={`/marketplace/${item.id}`}>
                   {img ? (
-                    <img className="card-image" src={img} alt={item.title} loading="lazy" width={400} height={300} />
+                    <Image className="card-image" src={img} alt={item.title} width={400} height={300} sizes="(max-width: 768px) 50vw, 25vw" />
                   ) : (
                     <div className="card-image placeholder" aria-hidden="true" />
                   )}
@@ -191,7 +192,7 @@ export default async function HomePage() {
               return (
                 <Link key={item.id} className="home-card-portrait" href={`/marketplace/${item.id}`}>
                   {img ? (
-                    <img src={img} alt={item.title} loading="lazy" />
+                    <Image src={img} alt={item.title} width={300} height={400} sizes="(max-width: 768px) 50vw, 16vw" />
                   ) : (
                     <div className="home-card-portrait-placeholder" aria-hidden="true" />
                   )}
@@ -220,7 +221,7 @@ export default async function HomePage() {
               return (
                 <Link key={item.id} className="home-card-compact" href={`/marketplace/${item.id}`}>
                   {img ? (
-                    <img src={img} alt={item.title} loading="lazy" width={72} height={72} />
+                    <Image src={img} alt={item.title} width={72} height={72} sizes="72px" />
                   ) : (
                     <div className="home-card-compact-placeholder" aria-hidden="true" />
                   )}

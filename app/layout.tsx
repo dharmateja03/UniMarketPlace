@@ -15,9 +15,33 @@ const bodyFont = Work_Sans({
   variable: "--font-body"
 });
 
-export const metadata = {
-  title: "UniHub Marketplace",
-  description: "A student-only marketplace for buying, selling, and renting on campus."
+import type { Metadata } from "next";
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://unihub.app";
+
+export const metadata: Metadata = {
+  title: {
+    default: "UniHub — Student Marketplace",
+    template: "%s | UniHub",
+  },
+  description: "A student-only marketplace for buying, selling, and renting on campus.",
+  metadataBase: new URL(BASE_URL),
+  openGraph: {
+    type: "website",
+    siteName: "UniHub",
+    title: "UniHub — Student Marketplace",
+    description: "Buy, sell, and rent with students on your campus.",
+    url: BASE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "UniHub — Student Marketplace",
+    description: "Buy, sell, and rent with students on your campus.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

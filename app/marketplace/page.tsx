@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { Text, Heading, Em } from "@/components/ui/typography";
@@ -143,13 +144,13 @@ export default async function MarketplacePage({
       <Link key={listing.id} className="card card-hover" href={`/marketplace/${listing.id}`}>
         <div style={{ position: "relative" }}>
           {imageUrl ? (
-            <img
+            <Image
               className="card-image"
               src={imageUrl}
               alt={listing.title}
-              loading="lazy"
               width={400}
               height={400}
+              sizes="(max-width: 768px) 50vw, 25vw"
             />
           ) : (
             <div className="card-image placeholder" aria-hidden="true" />
@@ -350,7 +351,7 @@ export default async function MarketplacePage({
                       return (
                         <Link key={item.id} className="card card-hover" href={`/marketplace/${item.id}`}>
                           {imageUrl ? (
-                            <img className="card-image" src={imageUrl} alt={item.title} loading="lazy" width={400} height={400} />
+                            <Image className="card-image" src={imageUrl} alt={item.title} width={400} height={400} sizes="(max-width: 768px) 50vw, 25vw" />
                           ) : (
                             <div className="card-image placeholder" aria-hidden="true" />
                           )}
@@ -434,7 +435,7 @@ export default async function MarketplacePage({
                   return (
                     <Link key={item.id} className="card card-hover" href={`/marketplace/${item.id}`}>
                       {imageUrl ? (
-                        <img className="card-image" src={imageUrl} alt={item.title} loading="lazy" width={400} height={400} />
+                        <Image className="card-image" src={imageUrl} alt={item.title} width={400} height={400} sizes="(max-width: 768px) 50vw, 25vw" />
                       ) : (
                         <div className="card-image placeholder" aria-hidden="true" />
                       )}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { getUserBadges } from "@/lib/badges";
@@ -72,7 +73,7 @@ export default async function ProfilePage() {
           <div className="profile-header-info">
             <div className="detail-seller-avatar profile-avatar-lg">
               {user.imageUrl ? (
-                <img src={user.imageUrl} alt={user.name} />
+                <Image src={user.imageUrl} alt={user.name} width={64} height={64} sizes="64px" />
               ) : (
                 user.name.slice(0, 1).toUpperCase()
               )}
@@ -129,7 +130,7 @@ export default async function ProfilePage() {
                 {activeListings.map((listing) => (
                   <Link key={listing.id} className="card card-hover" href={`/marketplace/${listing.id}`}>
                     {listing.images[0]?.url ? (
-                      <img className="card-image" src={listing.images[0].url} alt={listing.title} loading="lazy" width={400} height={400} />
+                      <Image className="card-image" src={listing.images[0].url} alt={listing.title} width={400} height={400} sizes="(max-width: 768px) 50vw, 25vw" />
                     ) : (
                       <div className="card-image placeholder" aria-hidden="true" />
                     )}
@@ -154,7 +155,7 @@ export default async function ProfilePage() {
                 {soldListings.map((listing) => (
                   <Link key={listing.id} className="profile-sold-item" href={`/marketplace/${listing.id}`}>
                     {listing.images[0]?.url ? (
-                      <img src={listing.images[0].url} alt={listing.title} loading="lazy" />
+                      <Image src={listing.images[0].url} alt={listing.title} width={80} height={80} sizes="80px" />
                     ) : (
                       <div className="profile-sold-placeholder" aria-hidden="true" />
                     )}

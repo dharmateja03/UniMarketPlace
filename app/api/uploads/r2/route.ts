@@ -1,12 +1,24 @@
 import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getCurrentUserId } from "@/lib/auth";
+import { isRateLimited } from "@/lib/rate-limit";
 
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID;
 const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY;
 const R2_BUCKET = process.env.R2_BUCKET;
 const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL;
+
+const ALLOWED_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+]);
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 function requireEnv(value: string | undefined, name: string) {
   if (!value) {
@@ -28,28 +40,52 @@ function getClient() {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const { filename, contentType } = body as { filename?: string; contentType?: string };
+  try {
+    const userId = getCurrentUserId();
 
-  if (!filename || !contentType) {
-    return NextResponse.json({ error: "Missing filename or contentType" }, { status: 400 });
+    if (isRateLimited(`${userId}:upload`, 30, 60_000)) {
+      return NextResponse.json({ error: "Too many uploads" }, { status: 429 });
+    }
+
+    const body = await request.json();
+    const { filename, contentType, fileSize } = body as {
+      filename?: string;
+      contentType?: string;
+      fileSize?: number;
+    };
+
+    if (!filename || !contentType) {
+      return NextResponse.json({ error: "Missing filename or contentType" }, { status: 400 });
+    }
+
+    if (!ALLOWED_TYPES.has(contentType)) {
+      return NextResponse.json({ error: "File type not allowed. Use JPEG, PNG, WebP, GIF, or AVIF." }, { status: 400 });
+    }
+
+    if (fileSize && fileSize > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "File too large. Maximum 10MB." }, { status: 400 });
+    }
+
+    const bucket = requireEnv(R2_BUCKET, "R2_BUCKET");
+    const publicUrlBase = requireEnv(R2_PUBLIC_URL, "R2_PUBLIC_URL");
+
+    const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 100);
+    const key = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
+
+    const client = getClient();
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      ContentType: contentType,
+      ContentLength: fileSize || undefined,
+    });
+
+    const uploadUrl = await getSignedUrl(client, command, { expiresIn: 300 });
+    const publicUrl = `${publicUrlBase.replace(/\/$/, "")}/${key}`;
+
+    return NextResponse.json({ uploadUrl, publicUrl, key });
+  } catch (error) {
+    console.error("POST /api/uploads/r2 error:", error);
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
-
-  const bucket = requireEnv(R2_BUCKET, "R2_BUCKET");
-  const publicUrlBase = requireEnv(R2_PUBLIC_URL, "R2_PUBLIC_URL");
-
-  const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "-");
-  const key = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
-
-  const client = getClient();
-  const command = new PutObjectCommand({
-    Bucket: bucket,
-    Key: key,
-    ContentType: contentType
-  });
-
-  const uploadUrl = await getSignedUrl(client, command, { expiresIn: 300 });
-  const publicUrl = `${publicUrlBase.replace(/\/$/, "")}/${key}`;
-
-  return NextResponse.json({ uploadUrl, publicUrl, key });
 }

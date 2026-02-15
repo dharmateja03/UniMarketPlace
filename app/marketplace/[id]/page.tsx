@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth";
 import { createReport, createReview, createMutualReview, startConversation, toggleSavedListing, markAsSoldAction, toggleFollow, incrementViewCount, createOffer, respondToOffer, toggleReviewsDisabled } from "@/app/actions";
@@ -8,6 +9,40 @@ import BadgeList from "@/components/BadgeList";
 import FollowButton from "@/components/FollowButton";
 import { getUserBadges } from "@/lib/badges";
 import { Text, Heading, Em, Strong } from "@/components/ui/typography";
+import type { Metadata } from "next";
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://unihub.app";
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const listing = await prisma.listing.findUnique({
+    where: { id: params.id },
+    select: { title: true, description: true, priceCents: true, images: { take: 1 } },
+  });
+
+  if (!listing) {
+    return { title: "Listing not found" };
+  }
+
+  const price = listing.priceCents === 0 ? "Free" : `$${(listing.priceCents / 100).toFixed(2)}`;
+  const image = listing.images[0]?.url;
+
+  return {
+    title: listing.title,
+    description: `${price} — ${listing.description.slice(0, 150)}`,
+    openGraph: {
+      title: `${listing.title} — ${price}`,
+      description: listing.description.slice(0, 200),
+      url: `${BASE_URL}/marketplace/${params.id}`,
+      images: image ? [{ url: image, width: 800, height: 600 }] : undefined,
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title: `${listing.title} — ${price}`,
+      description: listing.description.slice(0, 200),
+      images: image ? [image] : undefined,
+    },
+  };
+}
 
 function formatPrice(cents: number) {
   if (cents === 0) return "Free";
@@ -167,19 +202,19 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           <div className="detail-gallery-panel">
             {imageUrl ? (
               <div className="gallery">
-                <img
+                <Image
                   className="detail-image"
                   src={imageUrl}
                   alt={listing.title}
                   width={900}
                   height={600}
-                  loading="eager"
-                  fetchPriority="high"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 60vw"
                 />
                 {listing.images.length > 1 && (
                   <div className="gallery-grid">
                     {listing.images.slice(1, 5).map((img) => (
-                      <img key={img.id} src={img.url} alt={listing.title} loading="lazy" />
+                      <Image key={img.id} src={img.url} alt={listing.title} width={300} height={200} sizes="150px" />
                     ))}
                   </div>
                 )}
@@ -554,7 +589,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
         {recommendations.map((item) => (
           <Link key={item.id} className="card card-hover" href={`/marketplace/${item.id}`}>
             {item.images?.[0]?.url ? (
-              <img className="card-image" src={item.images[0].url} alt={item.title} width={400} height={400} loading="lazy" />
+              <Image className="card-image" src={item.images[0].url} alt={item.title} width={400} height={400} sizes="(max-width: 768px) 50vw, 25vw" />
             ) : (
               <div className="card-image placeholder" aria-hidden="true" />
             )}

@@ -102,6 +102,17 @@ model Listing {
   showEmail          Boolean         @default(false)
   showPhone          Boolean         @default(false)
   views              ListingView[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@index([campus])
+  @@index([createdAt])
+  @@index([viewCount])
+  @@index([priceCents])
+  @@index([status, category])
+  @@index([status, campus])
+  @@index([status, createdAt])
 }
 
 model ListingView {
@@ -112,6 +123,7 @@ model ListingView {
   listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@unique([listingId, userId])
+  @@index([userId])
 }
 
 model ListingImage {
@@ -119,6 +131,8 @@ model ListingImage {
   url       String
   listingId String
   listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
 }
 
 model Conversation {
@@ -149,6 +163,9 @@ model Message {
   createdAt      DateTime     @default(now())
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender         User         @relation(fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
 }
 
 model SavedListing {
@@ -178,6 +195,8 @@ model Review {
   transaction   Transaction?     @relation(fields: [transactionId], references: [id])
 
   @@unique([transactionId, reviewerId])
+  @@index([sellerId])
+  @@index([listingId])
 }
 
 model Report {
@@ -237,6 +256,10 @@ model Offer {
   listing     Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
   buyer       User        @relation("offersMade", fields: [buyerId], references: [id])
   seller      User        @relation("offersReceived", fields: [sellerId], references: [id])
+
+  @@index([listingId])
+  @@index([sellerId])
+  @@index([buyerId])
 }
 
 model Bundle {
