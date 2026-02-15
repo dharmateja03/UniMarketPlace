@@ -74,21 +74,10 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* Search Bar — Top */}
-      <form className="home-search" action="/marketplace" method="get">
-        <input
-          name="q"
-          placeholder="Search for textbooks, furniture, bikes..."
-          autoComplete="off"
-          type="search"
-        />
-        <button type="submit">Search</button>
-      </form>
-
       {/* Welcome + Quick Actions */}
       <section className="home-welcome">
         <h1>Welcome, <Em>{userName}</Em></h1>
-        <Text as="p" size="4" color="muted">What would you like to find today?</Text>
+        <Text as="p" size="3" color="muted">What would you like to find today?</Text>
 
         <div className="home-actions">
           <Link className="home-action-card" href="/marketplace/new">
